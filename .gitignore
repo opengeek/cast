@@ -1,0 +1,12 @@
+# ignore various IDE project files and folders
+.idea/
+.buildpath
+.project
+.settings/
+nbproject/
+
+# ignore ad hoc test files
+*.test.*
+
+# ignore mac files
+.DS_Store
