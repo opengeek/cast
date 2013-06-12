@@ -10,8 +10,6 @@
 
 namespace Cast\Git;
 
-use Cast\Git\Commands\Command;
-
 /**
  * An API wrapper for executing Git commands on a Git repository.
  *
