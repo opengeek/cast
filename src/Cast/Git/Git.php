@@ -101,7 +101,7 @@ class Git
             array(
                 0 => array("pipe", "r"),
                 1 => array("pipe", "w"),
-                2 => array("pipe", "w")
+                2 => array("pipe", "a")
             ),
             $pipes,
             $this->path,
@@ -109,14 +109,13 @@ class Git
         );
         if (is_resource($process)) {
             try {
-                /* close stdin pipe */
-                fclose($pipes[0]);
-                /* get stdout and close pipe */
-                $output = stream_get_contents($pipes[1]);
-                fclose($pipes[1]);
-                /* get stderr and close pipe */
                 $errors = stream_get_contents($pipes[2]);
+                $output = stream_get_contents($pipes[1]);
+
+                /* close pipes */
+                fclose($pipes[0]);
                 fclose($pipes[2]);
+                fclose($pipes[1]);
 
                 $return = proc_close($process);
             } catch (\Exception $e) {
