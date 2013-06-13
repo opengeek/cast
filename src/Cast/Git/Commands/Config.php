@@ -12,7 +12,7 @@ namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
 
-class Config extends Command
+class Config extends GitCommand
 {
     protected $command = 'config';
 

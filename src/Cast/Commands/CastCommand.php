@@ -8,31 +8,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Cast\Git\Commands;
+namespace Cast\Commands;
 
-use Cast\Git\Git;
+use Cast\Cast;
 
-abstract class Command
+abstract class CastCommand
 {
-    public $git;
+    public $cast;
 
     protected $command;
     protected $response;
 
-    abstract public function run(array $args = array());
-
-    public function __construct(Git &$git)
+    public function run(array $args = array())
     {
-        $this->git = &$git;
+        return $this->cast->git->{$this->cast->git->_commandClass()}($args);
     }
 
-    public function arg($key, $args) {
-        $value = false;
+    public function __construct(Cast &$cast)
+    {
+        $this->cast = &$cast;
+    }
+
+    public function arg($key, $args, $default = false) {
+        $value = $default;
         if (is_array($args) && array_key_exists($key, $args)) {
             $value = $args[$key];
-            if (is_string($value)) {
-                $value = escapeshellarg($value);
-            }
         }
         return $value;
     }

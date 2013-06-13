@@ -13,7 +13,7 @@ namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
 
-class CloneRemote extends Command
+class CloneRemote extends GitCommand
 {
     protected $command = 'clone';
 

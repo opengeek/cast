@@ -12,7 +12,7 @@ namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
 
-class Status extends Command
+class Status extends GitCommand
 {
     protected $command = 'status';
 
