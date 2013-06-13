@@ -102,9 +102,8 @@ class Git
         $process = proc_open(
             $this->getOption(self::GIT_BIN, $options, 'git') . ' ' . $command,
             array(
-                0 => array("pipe", "r"),
                 1 => array("pipe", "w"),
-                2 => array("pipe", "a")
+                2 => array("pipe", "w")
             ),
             $pipes,
             $this->path,
@@ -112,21 +111,26 @@ class Git
         );
         if (is_resource($process)) {
             try {
-                $errors = stream_get_contents($pipes[2]);
                 $output = stream_get_contents($pipes[1]);
+                $errors = stream_get_contents($pipes[2]);
 
                 /* close pipes */
-                fclose($pipes[0]);
-                fclose($pipes[2]);
-                fclose($pipes[1]);
+                foreach ($pipes as $pipe) {
+                    fclose($pipe);
+                }
 
                 $return = proc_close($process);
             } catch (\Exception $e) {
                 throw new \RuntimeException($e->getMessage());
             }
-            return array($return, $output, $errors, $command, $options);
+            return array($return, $this->stripEscapeSequences($output), $this->stripEscapeSequences($errors), $command, $options);
         }
         throw new \RuntimeException(sprintf('Could not execute command git %s', $command));
+    }
+
+    protected function stripEscapeSequences($string)
+    {
+        return preg_replace('/\e[^a-z]*?[a-z]/i', '', $string);
     }
 
     public function getPath()

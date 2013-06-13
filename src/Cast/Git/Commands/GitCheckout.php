@@ -8,10 +8,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Cast\Commands;
+namespace Cast\Git\Commands;
 
 
-class CastBranch extends CastCommand
+class GitCheckout
 {
-    protected $command = 'branch';
+    protected $command = 'checkout';
+
+    public function run(array $args = array())
+    {
+        $branch = array_shift($args);
+        $args = array_shift($args);
+
+
+    }
 }

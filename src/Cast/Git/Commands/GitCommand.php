@@ -14,6 +14,7 @@ use Cast\Git\Git;
 
 abstract class GitCommand
 {
+    /** @var Git */
     public $git;
 
     protected $command;
