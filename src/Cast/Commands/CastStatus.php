@@ -11,7 +11,7 @@
 namespace Cast\Commands;
 
 
-class CastInit extends CastCommand
+class CastStatus extends CastCommand
 {
-    protected $command = 'init';
+    protected $command = 'status';
 }

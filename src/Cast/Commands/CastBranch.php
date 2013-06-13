@@ -14,4 +14,12 @@ namespace Cast\Commands;
 class CastBranch extends CastCommand
 {
     protected $command = 'branch';
+
+    public function run(array $args = array())
+    {
+        $commit = array_shift($args);
+        $args = array_shift($args);
+
+        return $this->cast->git->{$this->command}->get($commit, $args);
+    }
 }

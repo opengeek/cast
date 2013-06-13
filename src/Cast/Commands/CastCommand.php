@@ -14,6 +14,7 @@ use Cast\Cast;
 
 abstract class CastCommand
 {
+    /** @var Cast */
     public $cast;
 
     protected $command;
@@ -26,7 +27,7 @@ abstract class CastCommand
 
     public function run(array $args = array())
     {
-        return $this->cast->git->{$this->cast->git->commandClass($this->command)}($args);
+        return $this->cast->git->{$this->command}->run($args);
     }
 
     public function arg($key, $args, $default = false) {
