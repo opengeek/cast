@@ -59,7 +59,7 @@ class GitBranch extends GitCommand
         } elseif (array_intersect($args, $this->moveOptions)) {
             return $this->move($commit, $pattern, $args);
         } elseif (array_intersect($args, $this->deleteOptions)) {
-            return $this->delete($commit, $pattern, $args);
+            return $this->delete($commit, $args);
         } elseif (array_intersect($args, $this->listOptions)) {
             return $this->get($commit, $pattern, $args);
         }
