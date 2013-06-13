@@ -33,7 +33,7 @@ class GitBranch extends GitCommand
             $command .= ' --remotes';
         }
         if ($this->arg('verbose', $args)) $command .= ' --verbose';
-        if ($this->arg('force', $args)) $command .= ' --force';
+        if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
         if ($this->arg('merged', $args)) {
             $command .= ' --merged';
         } elseif ($this->arg('no-merged', $args)) {
