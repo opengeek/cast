@@ -13,7 +13,7 @@ namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
 
-class Init extends GitCommand
+class GitInit extends GitCommand
 {
     protected $command = 'init';
 

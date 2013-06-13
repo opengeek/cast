@@ -19,14 +19,14 @@ abstract class CastCommand
     protected $command;
     protected $response;
 
-    public function run(array $args = array())
-    {
-        return $this->cast->git->{$this->cast->git->_commandClass()}($args);
-    }
-
     public function __construct(Cast &$cast)
     {
         $this->cast = &$cast;
+    }
+
+    public function run(array $args = array())
+    {
+        return $this->cast->git->{$this->cast->git->commandClass($this->command)}($args);
     }
 
     public function arg($key, $args, $default = false) {

@@ -11,7 +11,9 @@
 namespace Cast\Commands;
 
 
-class Add extends CastCommand
+use Cast\Git\Git;
+
+class CastInit extends CastCommand
 {
-    protected $command = 'add';
+    protected $command = 'init';
 }

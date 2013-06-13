@@ -11,7 +11,7 @@
 namespace Cast\Commands;
 
 
-class CloneRemote extends CastCommand
+class CastClone extends CastCommand
 {
     protected $command = 'clone';
 }

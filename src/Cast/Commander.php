@@ -42,7 +42,7 @@ class Commander
     public function __call($name, $arguments)
     {
         if (!array_key_exists($name, $this->commands)) {
-            $commandClass = $this->_commandClass($name);
+            $commandClass = $this->commandClass($name);
             if (class_exists($commandClass)) {
                 $this->commands[$name] = new $commandClass($this);
                 return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
@@ -55,7 +55,7 @@ class Commander
     public function __get($name)
     {
         if (!array_key_exists($name, $this->commands)) {
-            $commandClass = $this->_commandClass($name);
+            $commandClass = $this->commandClass($name);
             if (class_exists($commandClass)) {
                 $this->commands[$name] = new $commandClass($this);
                 return $this->commands[$name];
@@ -70,9 +70,11 @@ class Commander
         return array_key_exists($name, $this->commands);
     }
 
-    protected function _commandClass($name)
+    public function commandClass($name)
     {
-        $className = ucfirst($name);
+        $namespace = explode('\\', __NAMESPACE__);
+        $prefix = array_pop($namespace);
+        $className = $prefix . ucfirst($name);
         return __NAMESPACE__ . "\\Commands\\{$className}";
     }
 }

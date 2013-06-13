@@ -11,7 +11,7 @@
 namespace Cast\Commands;
 
 
-class Branch extends CastCommand
+class CastBranch extends CastCommand
 {
     protected $command = 'branch';
 }
