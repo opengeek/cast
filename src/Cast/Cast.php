@@ -10,10 +10,9 @@
 
 namespace Cast;
 
-
 use Cast\Git\Git;
 
-class Cast extends Commander
+class Cast
 {
     const GIT_PATH = 'cast.git_path';
 
@@ -21,6 +20,10 @@ class Cast extends Commander
     public $modx;
     /** @var Git A Git instance referenced by this Cast instance. */
     public $git;
+    /** @var array An array of GitCommand classes loaded (on-demand). */
+    protected $commands = array();
+    /** @var array A cached array of config options. */
+    protected $options = array();
 
     public function __construct(\modX &$modx, $options = null)
     {
@@ -53,4 +56,42 @@ class Cast extends Commander
         return $value;
     }
 
+    public function commandClass($name)
+    {
+        $namespace = explode('\\', __NAMESPACE__);
+        $prefix = array_pop($namespace);
+        $className = $prefix . ucfirst($name);
+        return __NAMESPACE__ . "\\Commands\\{$className}";
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (!array_key_exists($name, $this->commands)) {
+            $commandClass = $this->commandClass($name);
+            if (class_exists($commandClass)) {
+                $this->commands[$name] = new $commandClass($this);
+                return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
+            }
+            throw new \BadMethodCallException(sprintf('The Cast Command class %s does not exist', $commandClass));
+        }
+        return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
+    }
+
+    public function __get($name)
+    {
+        if (!array_key_exists($name, $this->commands)) {
+            $commandClass = $this->commandClass($name);
+            if (class_exists($commandClass)) {
+                $this->commands[$name] = new $commandClass($this);
+                return $this->commands[$name];
+            }
+            throw new \InvalidArgumentException(sprintf('The Cast Command class %s does not exist', $commandClass));
+        }
+        return $this->commands[$name];
+    }
+
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->commands);
+    }
 }

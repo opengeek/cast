@@ -10,14 +10,12 @@
 
 namespace Cast\Git;
 
-use Cast\Commander;
-
 /**
  * An API wrapper for executing Git commands on a Git repository.
  *
  * @package Cast\Git
  */
-class Git extends Commander
+class Git
 {
     const GIT_BIN = 'cast.git_bin';
     const GIT_ENV = 'cast.git_env';
@@ -28,6 +26,10 @@ class Git extends Commander
     protected $bare;
     /** @var bool Flag indicating if an initialized repository is related to this instance. */
     protected $initialized = false;
+    /** @var array An array of GitCommand classes loaded (on-demand). */
+    protected $commands = array();
+    /** @var array A cached array of config options. */
+    protected $options = array();
 
     public static function isValidRepositoryPath($path)
     {
@@ -54,6 +56,35 @@ class Git extends Commander
             $this->path = rtrim($path, '/');
         }
         $this->bare = (bool)$this->getOption('core.bare', null, false);
+    }
+
+    /**
+     * Get a config option for this object.
+     *
+     * @param string $key The key of the config option to get.
+     * @param null|array $options An optional array of config key/value pairs.
+     * @param mixed $default The default value to use if no option is found.
+     *
+     * @return mixed The value of the config option.
+     */
+    public function getOption($key, $options = null, $default = null)
+    {
+        if (is_array($options) && array_key_exists($key, $options)) {
+            $value = $options[$key];
+        } elseif (is_array($this->options) && array_key_exists($key, $this->options)) {
+            $value = $this->options[$key];
+        } else {
+            $value = $default;
+        }
+        return $value;
+    }
+
+    public function commandClass($name)
+    {
+        $namespace = explode('\\', __NAMESPACE__);
+        $prefix = array_pop($namespace);
+        $className = $prefix . ucfirst($name);
+        return __NAMESPACE__ . "\\Commands\\{$className}";
     }
 
     /**
@@ -166,5 +197,36 @@ class Git extends Commander
         }
         if (!is_array($options)) $options = array();
         return array_merge($config, $options);
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (!array_key_exists($name, $this->commands)) {
+            $commandClass = $this->commandClass($name);
+            if (class_exists($commandClass)) {
+                $this->commands[$name] = new $commandClass($this);
+                return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
+            }
+            throw new \BadMethodCallException(sprintf('The Git Command class %s does not exist', ucfirst($name)));
+        }
+        return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
+    }
+
+    public function __get($name)
+    {
+        if (!array_key_exists($name, $this->commands)) {
+            $commandClass = $this->commandClass($name);
+            if (class_exists($commandClass)) {
+                $this->commands[$name] = new $commandClass($this);
+                return $this->commands[$name];
+            }
+            throw new \InvalidArgumentException(sprintf('The Git Command class %s does not exist', ucfirst($name)));
+        }
+        return $this->commands[$name];
+    }
+
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->commands);
     }
 }

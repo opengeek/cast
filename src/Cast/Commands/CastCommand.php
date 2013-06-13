@@ -19,7 +19,7 @@ abstract class CastCommand
     protected $command;
     protected $response;
 
-    public function __construct(Cast &$cast)
+    public function __construct(&$cast)
     {
         $this->cast = &$cast;
     }

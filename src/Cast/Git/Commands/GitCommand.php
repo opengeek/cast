@@ -21,7 +21,7 @@ abstract class GitCommand
 
     abstract public function run(array $args = array());
 
-    public function __construct(Git &$git)
+    public function __construct(&$git)
     {
         $this->git = &$git;
     }
