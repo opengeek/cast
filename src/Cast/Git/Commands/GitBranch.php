@@ -16,23 +16,65 @@ class GitBranch extends GitCommand
 {
     protected $command = 'branch';
 
+    protected $listOptions = array(
+        'color',
+        'no-color',
+        'remotes', 'r',
+        'all', 'a',
+        'verbose', 'v',
+        'merged',
+        'no-merged',
+        'contains'
+    );
+
+    protected $setOptions = array(
+        'set-upstream',
+        'unset-upstream',
+        'set-upstream-to', 'u',
+        'track',
+        'no-track',
+        'create-reflog', 'l',
+        'force', 'f',
+        'edit-description'
+    );
+
+    protected $moveOptions = array(
+        'move', 'm',
+        'M'
+    );
+
+    protected $deleteOptions = array(
+        'delete', 'd',
+        'D'
+    );
+
     public function run(array $args = array())
     {
         $commit = array_shift($args);
+        $pattern = array_shift($args);
         $args = array_shift($args);
 
-        return $this->get($commit, $args);
+        if (array_intersect($args, $this->setOptions)) {
+            return $this->set($commit, $pattern, $args);
+        } elseif (array_intersect($args, $this->moveOptions)) {
+            return $this->move($commit, $pattern, $args);
+        } elseif (array_intersect($args, $this->deleteOptions)) {
+            return $this->delete($commit, $pattern, $args);
+        } elseif (array_intersect($args, $this->listOptions)) {
+            return $this->get($commit, $pattern, $args);
+        }
     }
 
-    public function get($commit = null, $args = null)
+    public function get($commit = null, $pattern = null, $args = null)
     {
         $command = $this->command;
-        if ($this->arg('all', $args)) {
+        if ($this->arg('list', $args)) $command .= " --list";
+        if ($this->arg('all', $args) || $this->arg('a', $args)) {
             $command .= ' --all';
-        } elseif ($this->arg('remotes', $args)) {
+        } elseif ($this->arg('remotes', $args) || $this->arg('r', $args)) {
             $command .= ' --remotes';
         }
-        if ($this->arg('verbose', $args)) $command .= ' --verbose';
+        if ($this->arg('verbose', $args) || $this->arg('v', $args) || $this->arg('vv', $args)) $command .= ' --verbose';
         if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
         if ($this->arg('merged', $args)) {
             $command .= ' --merged';
@@ -44,7 +86,7 @@ class GitBranch extends GitCommand
         if (!empty($commit)) {
             $command .= " {$commit}";
         }
-        if (($pattern = $this->arg('pattern', $args))) {
+        if (!empty($pattern)) {
             if (!is_array($pattern)) $pattern = array($pattern);
             $command .= " " . implode(' ', $pattern);
         }
@@ -56,13 +98,63 @@ class GitBranch extends GitCommand
         return $response[1];
     }
 
-    public function create($name, $startPoint = null, $args = null)
+    public function set($name, $startPoint = null, $args = null)
     {
+        $command = $this->command;
+        if (($upstream = $this->arg('set-upstream-to', $args)) !== false || ($upstream = $this->arg('u', $args))) {
+            $command .= " --set-upstream-to={$upstream}";
+        } elseif ($this->arg('set-upstream', $args)) {
+            $command .= " --set-upstream";
+        } elseif ($this->arg('track', $args)) {
+            $command .= " --track";
+        } elseif ($this->arg('no-track', $args)) {
+            $command .= " --no-track";
+        }
+        if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= " --force";
+        if ($this->arg('create-reflog', $args) || $this->arg('l', $args)) $command .= " -l";
+        $command .= " {$name}";
+        if (!empty($startPoint)) $command .= " {$startPoint}";
 
+        $response = $this->git->exec($command);
+        if ($response[0] !== 0 && !empty($response[2])) {
+            throw new \RuntimeException($response[2]);
+        }
+        return $response[1];
+    }
+
+    public function move($newBranch, $oldBranch = null, $args = null)
+    {
+        $command = $this->command;
+        if ($this->arg('m', $args) || $this->arg('move', $args)) {
+            $command .= " --move";
+        } elseif ($this->arg('M', $args)) {
+            $command .= " -M";
+        }
+        if (!empty($oldBranch)) $command .= " {$oldBranch}";
+        $command .= " {$newBranch}";
+
+        $response = $this->git->exec($command);
+        if ($response[0] !== 0 && !empty($response[2])) {
+            throw new \RuntimeException($response[2]);
+        }
+        return $response[1];
     }
 
     public function delete($name, $args = null)
     {
+        $command = $this->command;
+        if ($this->arg('d', $args) || $this->arg('delete', $args)) {
+            $command .= " --delete";
+        } elseif ($this->arg('D', $args)) {
+            $command .= " -D";
+        }
+        if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
+        $command .= " {$name}";
 
+        $response = $this->git->exec($command);
+        if ($response[0] !== 0 && !empty($response[2])) {
+            throw new \RuntimeException($response[2]);
+        }
+        return $response[1];
     }
 }
