@@ -20,7 +20,7 @@ class CastBranch extends CastCommand
         'no-color',
         'remotes', 'r',
         'all', 'a',
-        'verbose', 'v',
+        'verbose', 'v', 'vv',
         'merged',
         'no-merged',
         'contains'
@@ -53,13 +53,13 @@ class CastBranch extends CastCommand
         $pattern = array_shift($args);
         $args = array_shift($args);
 
-        if (array_intersect($args, $this->setOptions)) {
+        if (array_intersect(array_keys($args), $this->setOptions)) {
             return $this->set($commit, $pattern, $args);
-        } elseif (array_intersect($args, $this->moveOptions)) {
+        } elseif (array_intersect(array_keys($args), $this->moveOptions)) {
             return $this->move($commit, $pattern, $args);
-        } elseif (array_intersect($args, $this->deleteOptions)) {
+        } elseif (array_intersect(array_keys($args), $this->deleteOptions)) {
             return $this->delete($commit, $args);
-        } elseif (array_intersect($args, $this->listOptions)) {
+        } elseif (array_intersect(array_keys($args), $this->listOptions)) {
             return $this->get($commit, $pattern, $args);
         }
     }
