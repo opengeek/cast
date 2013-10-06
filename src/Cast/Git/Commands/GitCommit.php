@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 class GitCommit extends GitCommand
 {
     protected $command = 'commit';
@@ -63,7 +62,7 @@ class GitCommit extends GitCommand
         if (($msgFile = $this->arg('file', $args)) || ($msgFile = $this->arg('F', $args))) {
             $command .= " --file={$msgFile}";
         } elseif (($message = $this->arg('message', $args)) || ($message = $this->arg('m', $args))) {
-            $command .= " --message=\"{$message}\"";
+            $command .= " --message={$message}";
         } elseif ($this->arg('allow-empty-message', $args)) {
             $command .= " --allow-empty-message";
         } else {
@@ -74,15 +73,16 @@ class GitCommit extends GitCommand
         }
         if ($this->arg('amend', $args)) {
             if (!$this->arg('no-edit', $args) && !$this->arg('message', $args) && !$this->arg('m', $args) &&
-                    !$this->arg('file', $args) && !$this->arg('F', $args) && !$this->arg('allow-empty-message', $args)) {
+                !$this->arg('file', $args) && !$this->arg('F', $args) && !$this->arg('allow-empty-message', $args)
+            ) {
                 throw new \RuntimeException("git commit --amend requires -m, -F, --allow-empty-message or --no-edit in Cast");
             }
         }
         if (($author = $this->arg('author', $args))) {
-            $command .= " --author=\"{$author}\"";
+            $command .= " --author={$author}";
         }
         if (($date = $this->arg('date', $args))) {
-            $command .= " --date=\"{$date}\"";
+            $command .= " --date={$date}";
         }
         if (($template = $this->arg('template', $args)) || ($msgFile = $this->arg('t', $args))) {
             $command .= " --template={$template}";
@@ -103,13 +103,12 @@ class GitCommit extends GitCommand
             elseif ($this->arg('only', $args) || $this->arg('o', $args)) $command .= ' --only';
 
             if (!is_array($files)) $files = array($files);
+            array_walk($files, function(&$value) {
+                $value = escapeshellarg($value);
+            });
             $command .= " -- " . implode(" ", $files);
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

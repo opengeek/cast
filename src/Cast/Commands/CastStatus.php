@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastStatus extends CastCommand
 {
     protected $command = 'status';

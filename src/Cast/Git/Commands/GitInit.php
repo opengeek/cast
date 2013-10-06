@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 use Cast\Git\Git;
 
 class GitInit extends GitCommand
@@ -49,7 +48,7 @@ class GitInit extends GitCommand
         }
         $this->git->setPath($directory);
         $this->git->setInitialized();
-        $this->git->setBare((bool)$this->git->config->get('core.bare', array('type' => 'int')));
+        $this->git->setBare((bool)$this->git->config('core.bare', null, null, array('type' => 'int')));
         return explode("\n", $response[1], 2)[0];
     }
 }

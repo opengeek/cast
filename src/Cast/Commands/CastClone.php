@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastClone extends CastCommand
 {
     protected $command = 'clone';

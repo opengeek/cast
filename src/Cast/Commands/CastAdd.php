@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastAdd extends CastCommand
 {
     protected $command = 'add';

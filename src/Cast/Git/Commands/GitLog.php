@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 class GitLog extends GitCommand
 {
     protected $command = 'log';

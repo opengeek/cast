@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastStash extends CastCommand
 {
     protected $command = 'stash';

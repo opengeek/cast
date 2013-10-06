@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 class GitCheckout extends GitCommand
 {
     protected $command = 'checkout';
@@ -77,10 +76,6 @@ class GitCheckout extends GitCommand
             $command .= ($separatePaths ? " -- " : " ") . implode(" ", $paths);
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

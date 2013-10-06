@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 class GitMv extends GitCommand
 {
     protected $command = 'mv';
@@ -38,10 +37,6 @@ class GitMv extends GitCommand
         $command .= " {$source}";
         $command .= " {$destination}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

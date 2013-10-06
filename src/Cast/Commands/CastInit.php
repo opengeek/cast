@@ -10,8 +10,22 @@
 
 namespace Cast\Commands;
 
-
 class CastInit extends CastCommand
 {
     protected $command = 'init';
+
+    public function run(array $args = array())
+    {
+        $directory = isset($args[0]) ? $args[0] : $this->cast->git->getPath();
+
+        if ($this->cast->git->isInitialized()) throw new \RuntimeException('Cannot reinitialize an existing git repository at ' . $this->cast->git->getPath());
+
+        if ($this->cast->git->getOption('core.bare', null, false)) {
+            throw new \RuntimeException('Cast does not currently support bare repositories');
+        }
+
+        $this->cast->serializeModel(null, rtrim($directory, '/') . '/');
+
+        return $this->cast->git->init->run($args);
+    }
 }

@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastReset extends CastCommand
 {
     protected $command = 'reset';

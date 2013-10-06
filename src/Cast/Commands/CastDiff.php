@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastDiff extends CastCommand
 {
     protected $command = 'diff';

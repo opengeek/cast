@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastCheckout extends CastCommand
 {
     protected $command = 'checkout';

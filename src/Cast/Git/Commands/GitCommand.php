@@ -24,10 +24,11 @@ abstract class GitCommand
 
     public function __construct(&$git)
     {
-        $this->git = &$git;
+        $this->git = & $git;
     }
 
-    public function arg($key, $args, $default = false) {
+    public function arg($key, $args, $default = false)
+    {
         $value = $default;
         if (is_array($args) && array_key_exists($key, $args)) {
             $value = $args[$key];
@@ -36,5 +37,17 @@ abstract class GitCommand
             }
         }
         return $value;
+    }
+
+    public function exec($command)
+    {
+        $response = $this->git->exec($command);
+        if ($response[0] !== 0) {
+            $message = '[' . $response[0] . '] ' . rtrim($response[2], "\n");
+            throw new \RuntimeException($message);
+        } elseif (!empty($response[2])) {
+            return ($response[1] !== '' ? rtrim($response[1], "\n") . "\n" : '') . rtrim($response[2], "\n");
+        }
+        return rtrim($response[1], "\n");
     }
 }

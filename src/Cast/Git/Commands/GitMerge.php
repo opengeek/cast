@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 class GitMerge extends GitCommand
 {
     protected $command = 'merge';
@@ -31,8 +30,7 @@ class GitMerge extends GitCommand
             elseif ($this->arg('no-commit', $args)) $command .= ' --no-commit';
 
             if ($this->arg('ff', $args)) $command .= ' --ff';
-            elseif ($this->arg('no-ff', $args)) $command .= ' --no-ff';
-            elseif ($this->arg('ff-only', $args)) $command .= ' --ff-only';
+            elseif ($this->arg('no-ff', $args)) $command .= ' --no-ff'; elseif ($this->arg('ff-only', $args)) $command .= ' --ff-only';
 
             if (($n = $this->arg('log', $args))) {
                 if ($n === true || (integer)$n === 0) $command .= ' --log';
@@ -40,8 +38,7 @@ class GitMerge extends GitCommand
             }
 
             if ($this->arg('stat', $args)) $command .= ' --stat';
-            elseif ($this->arg('no-stat', $args)) $command .= ' --no-stat';
-            elseif ($this->arg('n', $args)) $command .= ' -n';
+            elseif ($this->arg('no-stat', $args)) $command .= ' --no-stat'; elseif ($this->arg('n', $args)) $command .= ' -n';
 
             if ($this->arg('squash', $args)) $command .= ' --squash';
             elseif ($this->arg('no-squash', $args)) $command .= ' --no-squash';
@@ -49,8 +46,7 @@ class GitMerge extends GitCommand
             if (($strategy = $this->arg('strategy', $args))) {
                 $command .= " --strategy={$strategy}";
                 $this->setStrategyOptions($args, $command);
-            }
-            elseif (($strategy = $this->arg('s', $args))) {
+            } elseif (($strategy = $this->arg('s', $args))) {
                 $command .= " -s {$strategy}";
                 $this->setStrategyOptions($args, $command);
             }
@@ -81,11 +77,7 @@ class GitMerge extends GitCommand
             }
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 
     protected function setStrategyOptions($args, &$command)

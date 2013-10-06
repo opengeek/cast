@@ -22,7 +22,7 @@ abstract class CastCommand
 
     public function __construct(&$cast)
     {
-        $this->cast = &$cast;
+        $this->cast = & $cast;
     }
 
     public function run(array $args = array())
@@ -30,7 +30,8 @@ abstract class CastCommand
         return $this->cast->git->{$this->command}->run($args);
     }
 
-    public function arg($key, $args, $default = false) {
+    public function arg($key, $args, $default = false)
+    {
         $value = $default;
         if (is_array($args) && array_key_exists($key, $args)) {
             $value = $args[$key];

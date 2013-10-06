@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastMv extends CastCommand
 {
     protected $command = 'mv';

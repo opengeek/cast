@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastLog extends CastCommand
 {
     protected $command = 'log';

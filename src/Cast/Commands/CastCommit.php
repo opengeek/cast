@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastCommit extends CastCommand
 {
     protected $command = 'commit';

@@ -21,6 +21,7 @@ class GitConfig extends GitCommand
         $arg1 = array_shift($args);
         $arg2 = array_shift($args);
         $arg3 = array_shift($args);
+        $args = array_shift($args);
 
         if (!$this->arg('global', $args) && !$this->arg('system', $args) && !$this->git->isInitialized()) {
             throw new \BadMethodCallException();
@@ -28,9 +29,7 @@ class GitConfig extends GitCommand
 
         $command = $this->command;
         if ($this->arg('global', $args)) $command .= " --global";
-        elseif ($this->arg('system', $args)) $command .= " --system";
-        elseif ($this->arg('local', $args)) $command .= " --local";
-        elseif (($file = $this->arg('file', $args)) || ($file = $this->arg('f', $args))) {
+        elseif ($this->arg('system', $args)) $command .= " --system"; elseif ($this->arg('local', $args)) $command .= " --local"; elseif (($file = $this->arg('file', $args)) || ($file = $this->arg('f', $args))) {
             $command .= " --f {$file}";
         }
 
@@ -96,11 +95,7 @@ class GitConfig extends GitCommand
             if (is_string($arg3) && $arg3 !== '') $command .= " {$arg3}";
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 
     protected function _setReadArguments(&$command, $args)
@@ -118,7 +113,6 @@ class GitConfig extends GitCommand
     protected function _setTypeArgument(&$command, $args)
     {
         if ($this->arg('bool', $args)) $command .= " --bool";
-        elseif ($this->arg('int', $args)) $command .= " --int";
-        elseif ($this->arg('bool-or-int', $args)) $command .= " --bool-or-int";
+        elseif ($this->arg('int', $args)) $command .= " --int"; elseif ($this->arg('bool-or-int', $args)) $command .= " --bool-or-int";
     }
 }

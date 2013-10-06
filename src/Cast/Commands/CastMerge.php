@@ -10,7 +10,6 @@
 
 namespace Cast\Commands;
 
-
 class CastMerge extends CastCommand
 {
     protected $command = 'merge';

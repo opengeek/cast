@@ -15,6 +15,7 @@ use Cast\Git\Git;
 class Cast
 {
     const GIT_PATH = 'cast.git_path';
+    const SERIALIZED_MODEL_PATH = 'cast.serialized_model_path';
 
     /** @var \modX The MODX instance referenced by this Cast instance. */
     public $modx;
@@ -24,6 +25,7 @@ class Cast
     protected $commands = array();
     /** @var array A cached array of config options. */
     protected $options = array();
+    protected $serializedModelPath;
 
     public function __construct(\modX &$modx, $options = null)
     {
@@ -33,6 +35,7 @@ class Cast
         }
         $gitPath = $this->getOption(self::GIT_PATH, null, $this->modx->getOption('base_path', null, MODX_BASE_PATH));
         $this->git = new Git($gitPath, $options);
+        $this->serializedModelPath = $gitPath . $this->getOption(Cast::SERIALIZED_MODEL_PATH, null, '.model/');
     }
 
     /**
@@ -54,6 +57,91 @@ class Cast
             $value = $default;
         }
         return $value;
+    }
+
+    public function defaultProfile()
+    {
+        $classes = array_diff($this->modx->getDescendants('xPDOObject'), array('xPDOSimpleObject'));
+        $profile = array();
+        foreach ($classes as $class) {
+            if (in_array('class_key', array_keys($this->modx->getFields($class)))) {
+                $criteria['class_key'] = $class;
+            } else {
+                $criteria[] = "1=1";
+            }
+            $profile[$class] = $criteria;
+        }
+        return $profile;
+    }
+
+    public function serializeModel($profile = null)
+    {
+        if ($profile === null) $profile = $this->defaultProfile();
+        foreach ($profile as $class => $criteria) {
+            $iterator = $this->modx->getIterator($class, $criteria, false);
+            foreach ($iterator as $object) {
+                $this->serialize($object);
+            }
+        }
+    }
+
+    public function unserializeModel($path = null)
+    {
+        if ($path === null) $path = $this->serializedModelPath;
+        $directory = new \DirectoryIterator($path);
+        /** @var \SplFileInfo $file */
+        foreach ($directory as $file) {
+            if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
+            $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
+            if ($file->isFile() && $file->getExtension() === 'json') $this->unserialize($relPath);
+            if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath);
+        }
+    }
+
+    public function serialize(\xPDOObject $object, $path = null)
+    {
+        $data = null;
+        if ($path === null) $path = $this->serializedModelPath;
+        $segments = array();
+        $segments[] = 'xPDOObject';
+        $segments[] = $object->_class;
+        switch ($object->_class) {
+            case 'modResource':
+//                break;
+            case 'modCategory':
+//                break;
+            default:
+                $criteria = $pk = $object->getPrimaryKey();
+                if (!is_array($pk)) $pk = array($pk);
+                $segments[] = implode('-', $pk) . '.json';
+        }
+        $data = array(
+            'class'    => $object->_class,
+            'criteria' => $criteria,
+            'object'   => $object->toArray('', true, false, true)
+        );
+        $path .= str_replace('\\', '/', implode('/', $segments));
+        return $this->modx->getCacheManager()->writeFile($path, json_encode($data));
+    }
+
+    public function unserialize($path)
+    {
+        if (is_readable($this->serializedModelPath . $path)) {
+            $data = file_get_contents($this->serializedModelPath . $path);
+            if (is_string($data)) {
+                $payload = json_decode($data, true);
+                /** @var \xPDOObject $object */
+                if (($object = $this->modx->getObject($payload['class'], $payload['criteria'])) === null) {
+                    $object = $this->modx->newObject($payload['class']);
+                    $object->fromArray($payload['object'], '', true, true);
+                } else {
+                    $object->fromArray($payload['object'], '', true, true);
+                }
+                return $object->save();
+            }
+            throw new \RuntimeException("Could not unserialize {$path} to the MODX database: no content");
+        }
+        throw new \RuntimeException("Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
     }
 
     public function commandClass($name)

@@ -36,13 +36,6 @@ class GitStatus extends GitCommand
         if ($this->arg('porcelain', $args)) $command .= ' --porcelain';
         if ($this->arg('x', $args)) $command .= ' -x';
 
-        $response = $this->git->exec($command);
-
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        $output = explode("\n", $response[1]);
-        array_pop($output);
-        return implode("\n", $output);
+        return $this->exec($command);
     }
 }

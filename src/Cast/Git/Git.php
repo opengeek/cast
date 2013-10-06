@@ -10,6 +10,8 @@
 
 namespace Cast\Git;
 
+use phpDocumentor\Transformer\Exception;
+
 /**
  * An API wrapper for executing Git commands on a Git repository.
  *
@@ -102,6 +104,7 @@ class Git
         $process = proc_open(
             $this->getOption(self::GIT_BIN, $options, 'git') . ' ' . $command,
             array(
+                0 => array("pipe", "r"),
                 1 => array("pipe", "w"),
                 2 => array("pipe", "w")
             ),
@@ -110,15 +113,52 @@ class Git
             $this->getOption(self::GIT_ENV, $options, null)
         );
         if (is_resource($process)) {
+            $output = '';
+            $errors = '';
             try {
-                $output = stream_get_contents($pipes[1]);
-                $errors = stream_get_contents($pipes[2]);
-
-                /* close pipes */
-                foreach ($pipes as $pipe) {
-                    fclose($pipe);
+                fclose($pipes[0]);
+                stream_set_blocking($pipes[1], 0);
+                stream_set_blocking($pipes[2], 0);
+                $readOutput = $readError = true;
+                $bufferSize = $prevBufferSize = 0;
+                $pause = 10;
+                while ($readOutput || $readError) {
+                    if ($readOutput) {
+                        if (feof($pipes[1])) {
+                            fclose($pipes[1]);
+                            $readOutput = false;
+                        } else {
+                            $data = fgets($pipes[1], 1024);
+                            $size = strlen($data);
+                            if ($size) {
+                                $output .= $data;
+                                $bufferSize += $size;
+                            }
+                        }
+                    }
+                    if ($readError) {
+                        if (feof($pipes[2])) {
+                            fclose($pipes[2]);
+                            $readError = false;
+                        } else {
+                            $data = fgets($pipes[2], 1024);
+                            $size = strlen($data);
+                            if ($size) {
+                                $errors .= $data;
+                                $bufferSize += $size;
+                            }
+                        }
+                    }
+                    if ($bufferSize > $prevBufferSize) {
+                        $prevBufferSize = $bufferSize;
+                        $pause = 10;
+                    } else {
+                        usleep($pause * 1000);
+                        if ($pause < 160) {
+                            $pause = $pause * 2;
+                        }
+                    }
                 }
-
                 $return = proc_close($process);
             } catch (\Exception $e) {
                 throw new \RuntimeException($e->getMessage());
@@ -170,8 +210,7 @@ class Git
      */
     public function isBare()
     {
-        if (!$this->isInitialized())
-        {
+        if (!$this->isInitialized()) {
             throw new \BadMethodCallException(sprintf("%s requires an initialized Git repository to be associated", __METHOD__));
         }
         return $this->bare;

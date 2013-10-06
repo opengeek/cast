@@ -41,10 +41,6 @@ class GitRm extends GitCommand
         if ($this->arg('ignore-unmatch', $args)) $command .= ' --ignore-unmatch';
         $command .= " -- {$paths}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

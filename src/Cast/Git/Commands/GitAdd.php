@@ -21,7 +21,8 @@ class GitAdd extends GitCommand
         $pathSpec = array_shift($args);
         $args = array_shift($args);
 
-        if ($pathSpec === null || (is_string($pathSpec) && $pathSpec === '') || (!is_string($pathSpec) && !is_array($pathSpec))) {
+        if ($pathSpec)
+        if ((is_string($pathSpec) && $pathSpec === '') || (is_array($pathSpec)) && empty($pathSpec)) {
             $pathSpec = '.';
         }
         if (!is_array($pathSpec)) {
@@ -55,12 +56,9 @@ class GitAdd extends GitCommand
         elseif ($this->arg('N', $args)) $command .= ' -N';
         if ($this->arg('refresh', $args)) $command .= ' --refresh';
         if ($this->arg('ignore-errors', $args)) $command .= ' --ignore-errors';
-        $command .= " -- {$paths}";
+        if ($paths === '.') $command .= " {$paths}";
+        else $command .= " -- {$paths}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

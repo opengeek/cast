@@ -28,8 +28,7 @@ class GitDiff extends GitCommand
         if ($this->arg('cached', $args)) $command .= ' --cached';
         elseif ($this->arg('staged', $args)) $command .= ' --staged';
         if ($this->arg('patch', $args)) $command .= ' --patch';
-        elseif ($this->arg('p', $args)) $command .= ' -p';
-        elseif ($this->arg('u', $args)) $command .= ' -u';
+        elseif ($this->arg('p', $args)) $command .= ' -p'; elseif ($this->arg('u', $args)) $command .= ' -u';
 
         if (($lines = $this->arg('U', $args))) $command .= " -U{$lines}";
         elseif (($lines = $this->arg('unified', $args))) $command .= " --unified={$lines}";
@@ -39,15 +38,12 @@ class GitDiff extends GitCommand
 
         if (($diffAlgorithm = $this->arg('diff-algorithm', $args))) {
             $command .= " --diff-algorithm={$diffAlgorithm}";
-        } elseif ($this->arg('minimal', $args)) $command .= ' --minimal';
-        elseif ($this->arg('patience', $args)) $command .= ' --patience';
-        elseif ($this->arg('histogram', $args)) $command .= ' --histogram';
+        } elseif ($this->arg('minimal', $args)) $command .= ' --minimal'; elseif ($this->arg('patience', $args)) $command .= ' --patience'; elseif ($this->arg('histogram', $args)) $command .= ' --histogram';
 
         if (($stat = $this->arg('stat', $args))) {
             if ($stat === true) $command .= " --stat";
             else $command .= " --stat={$stat}";
-        } elseif ($this->arg('numstat', $args)) $command .= " --numstat";
-        elseif ($this->arg('shortstat', $args)) $command .= " --shortstat";
+        } elseif ($this->arg('numstat', $args)) $command .= " --numstat"; elseif ($this->arg('shortstat', $args)) $command .= " --shortstat";
         if (($dirStat = $this->arg('dirstat', $args))) {
             if ($dirStat === true) $command .= " --dirstat";
             else $command .= " --dirstat={$dirStat}";
@@ -190,10 +186,6 @@ class GitDiff extends GitCommand
             $command .= " -- {$paths}";
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }

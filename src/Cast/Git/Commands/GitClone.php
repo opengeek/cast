@@ -10,7 +10,6 @@
 
 namespace Cast\Git\Commands;
 
-
 use Cast\Git\Git;
 
 class GitClone extends GitCommand

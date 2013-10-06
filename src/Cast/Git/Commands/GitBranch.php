@@ -91,11 +91,7 @@ class GitBranch extends GitCommand
             $command .= " " . implode(' ', $pattern);
         }
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 
     public function set($name, $startPoint = null, $args = null)
@@ -115,11 +111,7 @@ class GitBranch extends GitCommand
         $command .= " {$name}";
         if (!empty($startPoint)) $command .= " {$startPoint}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 
     public function move($newBranch, $oldBranch = null, $args = null)
@@ -133,11 +125,7 @@ class GitBranch extends GitCommand
         if (!empty($oldBranch)) $command .= " {$oldBranch}";
         $command .= " {$newBranch}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 
     public function delete($name, $args = null)
@@ -151,10 +139,6 @@ class GitBranch extends GitCommand
         if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
         $command .= " {$name}";
 
-        $response = $this->git->exec($command);
-        if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
-        }
-        return $response[1];
+        return $this->exec($command);
     }
 }
