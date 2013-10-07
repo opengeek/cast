@@ -10,8 +10,6 @@
 
 namespace Cast\Git;
 
-use phpDocumentor\Transformer\Exception;
-
 /**
  * An API wrapper for executing Git commands on a Git repository.
  *
