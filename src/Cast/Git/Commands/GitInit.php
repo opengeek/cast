@@ -49,6 +49,6 @@ class GitInit extends GitCommand
         $this->git->setPath($directory);
         $this->git->setInitialized();
         $this->git->setBare((bool)$this->git->config('core.bare', null, null, array('type' => 'int')));
-        return explode("\n", $response[1], 2)[0];
+        return $response;
     }
 }

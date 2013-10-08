@@ -11,6 +11,7 @@
 namespace Cast\Commands;
 
 use Cast\Cast;
+use Cast\Response\CastResponse;
 
 /**
  * An abstract Cast command class.
@@ -41,11 +42,12 @@ abstract class CastCommand
      *
      * @param array $args An array of arguments.
      *
-     * @return mixed The result of the GitCommand.
+     * @throws \RuntimeException If an error occurs executing the GitCommand::run() method.
+     * @return CastResponse The result of the GitCommand wrapped in a CastResponse object.
      */
     public function run(array $args = array())
     {
-        return $this->cast->git->{$this->command}->run($args);
+        return new CastResponse($this->cast->git->{$this->command}->run($args));
     }
 
     /**

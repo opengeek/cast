@@ -42,19 +42,6 @@ class GitLog extends GitCommand
             $command .= " -- " . implode(" ", $paths);
         }
 
-        $response = $this->git->exec($command);
-        if (is_int($response[0]) && $response[0] !== 0) {
-            if ($response[2] !== '') {
-                $error = rtrim($response[2], "\n");
-            } elseif ($response[1] !== '') {
-                $error = rtrim($response[1], "\n");
-            } else {
-                $error = sprintf("Empty response to command %s", $command);
-            }
-            throw new \RuntimeException($error);
-        } elseif ($response[1] === '' && $response[2] !== '') {
-            return $response[2];
-        }
-        return $response[1];
+        return $this->git->exec($command);
     }
 }

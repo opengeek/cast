@@ -61,6 +61,6 @@ class GitClone extends GitCommand
         $this->git->setPath($directory);
         $this->git->setInitialized();
         $this->git->setBare((bool)$this->git->config->get('core.bare', array('type' => 'int')));
-        return explode("\n", $response[1], 2)[0];
+        return $response;
     }
 }

@@ -14,7 +14,9 @@ use Cast\Commands\CastCommand;
 use Cast\Git\Git;
 
 /**
- * The Cast command controller class.
+ * The Cast API controller class.
+ *
+ * Each instance of Cast wraps a single modX instance.
  *
  * @package Cast
  */
