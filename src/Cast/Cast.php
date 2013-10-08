@@ -10,6 +10,7 @@
 
 namespace Cast;
 
+use Cast\Commands\CastCommand;
 use Cast\Git\Git;
 
 /**
@@ -30,14 +31,19 @@ class Cast
     protected $commands = array();
     /** @var array A cached array of config options. */
     protected $options = array();
+    /** @var string The path where the serialized model objects are stored. */
     protected $serializedModelPath;
 
-    public function __construct(\modX &$modx, $options = null)
+    /**
+     * Construct a new instance of Cast
+     *
+     * @param \modX &$modx A reference to a modX instance to work with.
+     * @param array $options An array of options for the Cast instance.
+     */
+    public function __construct(\modX &$modx, array $options = array())
     {
         $this->modx =& $modx;
-        if (is_array($options)) {
-            $this->options = $options;
-        }
+        $this->options = $options;
         $gitPath = $this->getOption(self::GIT_PATH, null, $this->modx->getOption('base_path', null, MODX_BASE_PATH));
         $this->git = new Git($gitPath, $options);
         $this->serializedModelPath = $gitPath . $this->getOption(Cast::SERIALIZED_MODEL_PATH, null, '.model/');
@@ -201,7 +207,7 @@ class Cast
      * @param string $name The command to run.
      * @param array $arguments The arguments to pass to the command.
      *
-     * @throws \BadMethodCallException If no Cast Command class exists with the specified name.
+     * @throws \BadMethodCallException If no CastCommand class exists for the specified name.
      * @return mixed The results of the command.
      */
     public function __call($name, $arguments)
@@ -217,6 +223,14 @@ class Cast
         return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
     }
 
+    /**
+     * Magically load and instantiate a Cast Command Class
+     *
+     * @param string $name The command to load.
+     *
+     * @throws \InvalidArgumentException If no CastCommand class exists for the specified name.
+     * @return CastCommand The CastCommand class for the specified command.
+     */
     public function __get($name)
     {
         if (!array_key_exists($name, $this->commands)) {
@@ -230,6 +244,13 @@ class Cast
         return $this->commands[$name];
     }
 
+    /**
+     * Test if a CastCommand class exists for the specified name.
+     *
+     * @param string $name The command to test.
+     *
+     * @return bool TRUE if the CastCommand class exists for the specified name, FALSE otherwise.
+     */
     public function __isset($name)
     {
         return array_key_exists($name, $this->commands);

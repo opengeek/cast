@@ -220,6 +220,9 @@ class Git
         return $this->initialized;
     }
 
+    /**
+     * Set this instance of Cast initialized, loading the Git repository config.
+     */
     public function setInitialized()
     {
         $this->loadConfig($this->options);
