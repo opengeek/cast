@@ -65,7 +65,7 @@ class Git
      * @param null|array $options An optional array of config key/value pairs.
      * @param mixed $default The default value to use if no option is found.
      *
-     * @return mixed The value of the config option.
+     * @return mixed|null The value of the config option or the default value if not found.
      */
     public function getOption($key, $options = null, $default = null)
     {
@@ -79,6 +79,13 @@ class Git
         return $value;
     }
 
+    /**
+     * Return the fully-qualified GitCommand class from a Git command.
+     *
+     * @param string $name The Git command name.
+     *
+     * @return string The fully-qualified GitCommand class.
+     */
     public function commandClass($name)
     {
         $namespace = explode('\\', __NAMESPACE__);
@@ -166,16 +173,35 @@ class Git
         throw new \RuntimeException(sprintf('Could not execute command git %s', $command));
     }
 
+    /**
+     * Strip escape sequences from stderr/stdout content.
+     *
+     * @param string $string The string to strip escape sequences from.
+     *
+     * @return mixed The string stripped of escape sequences.
+     */
     protected function stripEscapeSequences($string)
     {
         return preg_replace('/\e[^a-z]*?[a-z]/i', '', $string);
     }
 
+    /**
+     * Get the Git repository path for this instance.
+     *
+     * @return string The Git repository path.
+     */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * Set the repository path for this instance.
+     *
+     * @param string $path The path to the Git repository.
+     *
+     * @throws \InvalidArgumentException If the path is not a valid Git repository path.
+     */
     public function setPath($path)
     {
         if (!Git::isValidRepositoryPath($path)) {
@@ -214,6 +240,11 @@ class Git
         return $this->bare;
     }
 
+    /**
+     * Set if this instance represents a bare Git repository.
+     *
+     * @param bool $bare The boolean value to set.
+     */
     public function setBare($bare = true)
     {
         $this->bare = $bare;
@@ -240,6 +271,15 @@ class Git
         return array_merge($config, $options);
     }
 
+    /**
+     * Magically load, instantiate, and run a GitCommand class.
+     *
+     * @param string $name The Git command name.
+     * @param array $arguments An array of arguments for the command.
+     *
+     * @throws \BadMethodCallException If no GitCommand class exists for the name.
+     * @return mixed The results of the GitCommand.
+     */
     public function __call($name, $arguments)
     {
         if (!array_key_exists($name, $this->commands)) {
@@ -253,6 +293,14 @@ class Git
         return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
     }
 
+    /**
+     * Magically load and instantiate a GitCommand class.
+     *
+     * @param string $name The Git command name.
+     *
+     * @throws \InvalidArgumentException If no GitCommand class exists for the name.
+     * @return mixed The results of the GitCommand
+     */
     public function __get($name)
     {
         if (!array_key_exists($name, $this->commands)) {
@@ -266,6 +314,13 @@ class Git
         return $this->commands[$name];
     }
 
+    /**
+     * See if a GitCommand class exists for the specified name.
+     *
+     * @param string $name The Git command name to lookup.
+     *
+     * @return bool TRUE if a GitCommand class exists, or FALSE otherwise.
+     */
     public function __isset($name)
     {
         return array_key_exists($name, $this->commands);

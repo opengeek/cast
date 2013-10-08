@@ -12,14 +12,27 @@ namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
 
+/**
+ * An abstract representation of a Git command.
+ *
+ * @package Cast\Git\Commands
+ */
 abstract class GitCommand
 {
     /** @var Git */
     public $git;
 
+    /** @var string The Git command represented by this class */
     protected $command;
     protected $response;
 
+    /**
+     * Run the Git command.
+     *
+     * @param array $args An array of arguments for the command.
+     *
+     * @return mixed The results of the command.
+     */
     abstract public function run(array $args = array());
 
     public function __construct(&$git)
@@ -39,6 +52,14 @@ abstract class GitCommand
         return $value;
     }
 
+    /**
+     * Execute a Git command string and return an appropriate response.
+     *
+     * @param string $command The complete Git CLI command string to execute.
+     *
+     * @throws \RuntimeException If an error occurs executing the command.
+     * @return string The stdout or stderr response from the Git command as appropriate.
+     */
     public function exec($command)
     {
         $response = $this->git->exec($command);

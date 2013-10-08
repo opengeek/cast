@@ -12,6 +12,11 @@ namespace Cast;
 
 use Cast\Git\Git;
 
+/**
+ * The Cast command controller class.
+ *
+ * @package Cast
+ */
 class Cast
 {
     const GIT_PATH = 'cast.git_path';
@@ -59,6 +64,11 @@ class Cast
         return $value;
     }
 
+    /**
+     * Get the default serialization profile, determining which classes to include.
+     *
+     * @return array An array of classes and criteria for data serialization.
+     */
     public function defaultProfile()
     {
         $classes = array_diff($this->modx->getDescendants('xPDOObject'), array('xPDOSimpleObject'));
@@ -74,6 +84,11 @@ class Cast
         return $profile;
     }
 
+    /**
+     * Serialize a model to files that can be tracked by Git.
+     *
+     * @param null|array $profile An optional serialization profile.
+     */
     public function serializeModel($profile = null)
     {
         if ($profile === null) $profile = $this->defaultProfile();
@@ -85,6 +100,11 @@ class Cast
         }
     }
 
+    /**
+     * Unserialize a model from files tracked by Git.
+     *
+     * @param null|string $path
+     */
     public function unserializeModel($path = null)
     {
         if ($path === null) $path = $this->serializedModelPath;
@@ -98,6 +118,14 @@ class Cast
         }
     }
 
+    /**
+     * Serialize a model object to file.
+     *
+     * @param \xPDOObject $object The object to serialize.
+     * @param null|string $path An optional path for serialization; uses serializedModelPath if not set.
+     *
+     * @return int|bool The number of bytes written to file or false on failure.
+     */
     public function serialize(\xPDOObject $object, $path = null)
     {
         $data = null;
@@ -124,6 +152,14 @@ class Cast
         return $this->modx->getCacheManager()->writeFile($path, json_encode($data));
     }
 
+    /**
+     * Unserialize a model object from file and save it into the database.
+     *
+     * @param string $path The path of the file to unserialize the object from.
+     *
+     * @throws \RuntimeException If unserialization fails to retrieve valid data.
+     * @return bool TRUE if the object is saved to the database, FALSE if save fails.
+     */
     public function unserialize($path)
     {
         if (is_readable($this->serializedModelPath . $path)) {
@@ -144,6 +180,13 @@ class Cast
         throw new \RuntimeException("Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
     }
 
+    /**
+     * Return the fully qualified Cast Command class for a command.
+     *
+     * @param string $name The name of the command.
+     *
+     * @return string The fully qualified Cast Command class.
+     */
     public function commandClass($name)
     {
         $namespace = explode('\\', __NAMESPACE__);
@@ -152,6 +195,15 @@ class Cast
         return __NAMESPACE__ . "\\Commands\\{$className}";
     }
 
+    /**
+     * Magically load, instantiate and run() a Cast Command Class
+     *
+     * @param string $name The command to run.
+     * @param array $arguments The arguments to pass to the command.
+     *
+     * @throws \BadMethodCallException If no Cast Command class exists with the specified name.
+     * @return mixed The results of the command.
+     */
     public function __call($name, $arguments)
     {
         if (!array_key_exists($name, $this->commands)) {
