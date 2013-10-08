@@ -10,3 +10,7 @@ nbproject/
 
 # ignore mac files
 .DS_Store
+
+# ignore config files
+config.core.php
+

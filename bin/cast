@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+$start = microtime(true);
+
+if (PHP_SAPI !== 'cli') {
+    echo 'WARNING: Cast should be invoked via the CLI version of PHP; you are using the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
+}
+
+try {
+    if (!is_readable('config.core.php')) {
+        throw new FileNotFoundException("Cast could not find your MODX installation's config.core.php");
+    }
+    require_once 'config.core.php';
+    require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
+    require_once __DIR__ . '/../src/autoload.php';
+
+    $modx = modX::getInstance();
+    $modx->initialize('mgr');
+    $modx->setLogLevel(modX::LOG_LEVEL_INFO);
+    $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
+
+    $cast = new \Cast\Cast($modx);
+
+    $controller = new \Cast\Controllers\CLIController();
+    $response = $controller->handle($cast, $argv);
+    echo ltrim($response, "\n") . "\n";
+    printf("Execution finished with exit code {$response->getCode()} in %2.4f seconds\n", microtime(true) - $start);
+} catch (\Exception $e) {
+    echo "ERROR: {$e->getMessage()}\n";
+    printf("Execution failed in %2.4f seconds\n", microtime(true) - $start);
+}

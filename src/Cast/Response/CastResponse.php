@@ -113,7 +113,6 @@ class CastResponse
      */
     public function __toString()
     {
-        $output[] = "Command completed with code " . (string)$this->result;
         $output[] = rtrim($this->errors, "\n");
         $output[] = rtrim($this->output, "\n");
         return implode("\n", $output) . "\n";
