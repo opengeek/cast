@@ -22,6 +22,7 @@ class Cast
 {
     const GIT_PATH = 'cast.git_path';
     const SERIALIZED_MODEL_PATH = 'cast.serialized_model_path';
+    const SERIALIZED_MODEL_EXCLUDES = 'cast.serialized_model_excludes';
 
     /** @var \modX The MODX instance referenced by this Cast instance. */
     public $modx;
@@ -33,6 +34,17 @@ class Cast
     protected $options = array();
     /** @var string The path where the serialized model objects are stored. */
     protected $serializedModelPath;
+    /** @var array An array of classes to always exclude from serialization. */
+    protected $serializedModelExcludes = array(
+        'xPDOObject',
+        'xPDOSimpleObject',
+        'modActiveUser',
+        'modDbRegisterQueue',
+        'modDbRegisterTopic',
+        'modDbRegisterMessage',
+        'modManagerLog',
+        'modSession',
+    );
 
     /**
      * Construct a new instance of Cast
@@ -71,13 +83,20 @@ class Cast
     }
 
     /**
-     * Get the default serialization profile, determining which classes to include.
+     * Get the default serialization profile.
+     *
+     * @param array $excludes An array of classes to exclude from data serialization.
      *
      * @return array An array of classes and criteria for data serialization.
      */
-    public function defaultProfile()
+    public function defaultProfile(array $excludes = array())
     {
-        $classes = array_diff($this->modx->getDescendants('xPDOObject'), array('xPDOSimpleObject'));
+        $excludes = array_merge(
+            $this->serializedModelExcludes,
+            $this->getOption(Cast::SERIALIZED_MODEL_EXCLUDES, null, array()),
+            $excludes
+        );
+        $classes = array_diff($this->modx->getDescendants('xPDOObject'), $excludes);
         $profile = array();
         foreach ($classes as $class) {
             if (in_array('class_key', array_keys($this->modx->getFields($class)))) {
@@ -94,14 +113,15 @@ class Cast
      * Serialize a model to files that can be tracked by Git.
      *
      * @param null|array $profile An optional serialization profile.
+     * @param null|string $path An optional path for serialization; uses serializedModelPath if not set.
      */
-    public function serializeModel($profile = null)
+    public function serializeModel($profile = null, $path = null)
     {
         if ($profile === null) $profile = $this->defaultProfile();
         foreach ($profile as $class => $criteria) {
             $iterator = $this->modx->getIterator($class, $criteria, false);
             foreach ($iterator as $object) {
-                $this->serialize($object);
+                $this->serialize($object, $path);
             }
         }
     }
@@ -109,7 +129,7 @@ class Cast
     /**
      * Unserialize a model from files tracked by Git.
      *
-     * @param null|string $path
+     * @param null|string $path An optional path for the serialized model; uses serializedModelPath if not set.
      */
     public function unserializeModel($path = null)
     {
