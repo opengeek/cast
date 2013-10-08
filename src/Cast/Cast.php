@@ -175,7 +175,7 @@ class Cast
             'object'   => $object->toArray('', true, false, true)
         );
         $path .= str_replace('\\', '/', implode('/', $segments));
-        return $this->modx->getCacheManager()->writeFile($path, json_encode($data));
+        return $this->modx->getCacheManager()->writeFile($path, json_encode($data, version_compare(phpversion(), '5.4.0', '>=') ? JSON_PRETTY_PRINT : 0));
     }
 
     /**
