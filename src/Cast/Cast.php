@@ -38,11 +38,15 @@ class Cast
     protected $serializedModelExcludes = array(
         'xPDOObject',
         'xPDOSimpleObject',
+        'modAccess',
+        'modAccessibleObject',
+        'modAccessibleSimpleObject',
         'modActiveUser',
         'modDbRegisterQueue',
         'modDbRegisterTopic',
         'modDbRegisterMessage',
         'modManagerLog',
+        'modPrincipal',
         'modSession',
     );
 
