@@ -123,7 +123,11 @@ class CLIController implements ControllerInterface
         $option = substr($option, 2);
         if (strpos($option, '=') > 0) {
             $exploded = explode('=', $option, 2);
-            $this->options[$exploded[0]] = escapeshellarg($exploded[1]);
+            if (in_array($exploded[1], array('0', '1', 'true', 'false'))) {
+                $this->options[$exploded[0]] = in_array($exploded[1], array('0', 'false')) ? '0' : '1';
+            } else {
+                $this->options[$exploded[0]] = escapeshellarg($exploded[1]);
+            }
         } else {
             $this->options[$option] = true;
         }
