@@ -29,7 +29,7 @@ class GitAdd extends GitCommand
             }
             $paths = implode(" ", $pathSpec);
         } else {
-            $paths = '';
+            $paths = '.';
         }
 
         $command = $this->command;

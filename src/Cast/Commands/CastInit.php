@@ -19,9 +19,12 @@ class CastInit extends CastCommand
 
     public function run(array $args = array(), array $opts = array())
     {
-        $directory = isset($args[0]) && !empty($args[0]) && $args[0] !== '0'
-            ? $args[0]
-            : $this->cast->git->getPath();
+        $directory = array_shift($args);
+        if (empty($directory)) {
+            $directory = $this->cast->git->getPath();
+        } else {
+            $this->cast->git->setPath($directory);
+        }
 
         if ($this->cast->git->isInitialized()) throw new \RuntimeException('Cannot reinitialize an existing git repository at ' . $directory);
 
@@ -29,7 +32,7 @@ class CastInit extends CastCommand
             throw new \RuntimeException('Cast does not currently support bare repositories');
         }
 
-        $this->cast->serializeModel(null, rtrim($directory, '/') . '/' . $this->cast->getOption(Cast::SERIALIZED_MODEL_PATH, null, '.model/'));
+        $this->cast->getSerializer()->serializeModel();
 
         return new CastResponse($this->cast->git->{$this->command}->run($args, $opts));
     }

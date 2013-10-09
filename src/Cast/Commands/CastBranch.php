@@ -77,11 +77,11 @@ class CastBranch extends CastCommand
 
     public function move($newBranch, $oldBranch = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($newBranch, $oldBranch, $opts);
+        return $this->cast->git->{$this->command}->move($newBranch, $oldBranch, $opts);
     }
 
     public function delete($name, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($name, $opts);
+        return $this->cast->git->{$this->command}->delete($name, $opts);
     }
 }
