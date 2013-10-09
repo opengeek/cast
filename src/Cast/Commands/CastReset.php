@@ -16,7 +16,7 @@ class CastReset extends CastCommand
 
     public function afterRun(array $args = array(), array $opts = array())
     {
-        if ($this->isImplicitMode($opts)) {
+        if ($this->opt('hard', $opts) && $this->shouldSerialize($opts)) {
             $this->cast->getSerializer()->unserializeModel();
         }
     }

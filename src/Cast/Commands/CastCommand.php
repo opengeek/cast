@@ -20,7 +20,7 @@ use Cast\Response\CastResponse;
  */
 abstract class CastCommand
 {
-    const SERIALIZE_NOW = 'cast.serialize';
+    const SERIALIZE = 'cast.serialize';
 
     /** @var Cast */
     public $cast;
@@ -97,14 +97,18 @@ abstract class CastCommand
     }
 
     /**
-     * Determines if Cast should implicitly serialize the model data.
+     * Determines if Cast should (un-)serialize the model data.
      *
      * @param array $opts An array of command options.
      *
      * @return bool true if
      */
-    protected function isImplicitMode(array $opts = array()) {
-        return (integer)$this->cast->getOption(Cast::SERIALIZER_MODE, $opts, 0) < 1
-            || (integer)$this->opt(CastCommand::SERIALIZE_NOW, $opts);
+    protected function shouldSerialize(array $opts = array()) {
+        $isImplicit = ((integer)$this->cast->getOption(Cast::SERIALIZER_MODE, $opts, 0) < 1);
+        $serializeOpt = $this->opt(CastCommand::SERIALIZE, $opts, null);
+        if ($serializeOpt !== null) {
+            $isImplicit = (bool)$serializeOpt;
+        }
+        return $isImplicit;
     }
 }

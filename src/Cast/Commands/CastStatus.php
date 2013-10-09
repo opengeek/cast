@@ -16,7 +16,7 @@ class CastStatus extends CastCommand
 
     public function beforeRun(array $args = array(), array $opts = array())
     {
-        if ($this->isImplicitMode($opts)) {
+        if ($this->shouldSerialize($opts)) {
             $this->cast->getSerializer()->serializeModel();
         }
     }

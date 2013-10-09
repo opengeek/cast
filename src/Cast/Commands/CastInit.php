@@ -31,7 +31,7 @@ class CastInit extends CastCommand
             throw new \RuntimeException('Cast does not currently support bare repositories');
         }
 
-        if ($this->isImplicitMode($opts)) {
+        if ($this->shouldSerialize($opts)) {
             $this->cast->getSerializer()->serializeModel();
         }
     }

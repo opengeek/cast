@@ -10,15 +10,13 @@
 
 namespace Cast\Commands;
 
-use Cast\Response\CastResponse;
-
 class CastCheckout extends CastCommand
 {
     protected $command = 'checkout';
 
     public function afterRun(array $args = array(), array $opts = array())
     {
-        if ($this->isImplicitMode($opts)) {
+        if ($this->shouldSerialize($opts)) {
             $this->cast->getSerializer()->unserializeModel();
         }
     }
