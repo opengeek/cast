@@ -3,11 +3,13 @@
 $start = microtime(true);
 
 if (PHP_SAPI !== 'cli') {
-    echo 'WARNING: Cast should be invoked via the CLI version of PHP; you are using the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
+    echo 'warning: cast should be invoked via the CLI version of PHP; you are using the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
 }
 
+$debug = (array_search('--cast.debug', $argv, true) !== false);
+
 if (function_exists('ini_set')) {
-    @ini_set('display_errors', 1);
+    if ($debug) @ini_set('display_errors', 1);
 
     $memoryInBytes = function ($value)
     {
@@ -34,7 +36,7 @@ if (function_exists('ini_set')) {
 
 try {
     if (!is_readable('config.core.php')) {
-        throw new FileNotFoundException("Cast could not find your MODX installation's config.core.php; this is required");
+        throw new FileNotFoundException("cast could not find your MODX installation's config.core.php; this is required");
     }
     require_once 'config.core.php';
     require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
@@ -49,9 +51,13 @@ try {
 
     $controller = new \Cast\Controllers\CLIController();
     $response = $controller->handle($cast, $argv);
-    echo ltrim($response, "\n") . "\n";
-    printf("Execution finished with exit code {$response->getCode()} in %2.4f seconds\n", microtime(true) - $start);
+    echo ltrim($response, "\n");
+    if ($debug) {
+        printf("execution finished with exit code {$response->getCode()} in %2.4f seconds\n", microtime(true) - $start);
+    }
 } catch (\Exception $e) {
-    echo "ERROR: {$e->getMessage()}\n";
-    printf("Execution failed in %2.4f seconds\n", microtime(true) - $start);
+    echo "{$e->getMessage()}\n";
+    if ($debug) {
+        printf("execution failed in %2.4f seconds\n", microtime(true) - $start);
+    }
 }
