@@ -69,7 +69,7 @@ class Cast
      */
     public function &getSerializer(array $options = array())
     {
-        $serializerClass = $this->getOption(Cast::SERIALIZER_CLASS, $options, '\\Cast\\Serialize\\JSONSerializer');
+        $serializerClass = $this->getOption(Cast::SERIALIZER_CLASS, $options, '\\Cast\\Serialize\\PHPSerializer');
         if (!isset($this->serializer) || !$this->serializer instanceof $serializerClass) {
             $this->serializer = new $serializerClass($this);
         }
