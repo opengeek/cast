@@ -105,23 +105,37 @@ class CLIController implements ControllerInterface
     {
         $this->script = escapeshellcmd(array_shift($args));
         $this->command = escapeshellcmd(array_shift($args));
-        while ($arg = next($args)) {
-            if (strpos($arg, '-') === 0) {
+        $arg = reset($args);
+        while ($arg !== false) {
+            if (strpos($arg, '--') === 0) {
                 $this->addOption($arg);
+            } elseif (strpos($arg, '-') === 0) {
+                $this->addSwitch($arg);
             } else {
                 $this->arguments[] = escapeshellarg($arg);
             }
+            $arg = next($args);
         }
     }
 
     private function addOption($option)
     {
-        $option = ltrim($option, '-');
+        $option = substr($option, 2);
         if (strpos($option, '=') > 0) {
             $exploded = explode('=', $option, 2);
-            $this->options[escapeshellarg($exploded[0])] = escapeshellarg($exploded[1]);
+            $this->options[$exploded[0]] = escapeshellarg($exploded[1]);
         } else {
             $this->options[$option] = true;
+        }
+    }
+
+    private function addSwitch($switch)
+    {
+        $switch = substr($switch, 1);
+        if (strlen($switch) > 1) {
+            $this->options[substr($switch, 0, 1)] = escapeshellarg(substr($switch, 1));
+        } else {
+            $this->options[$switch] = true;
         }
     }
 }
