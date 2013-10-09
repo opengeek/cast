@@ -35,19 +35,23 @@ if (function_exists('ini_set')) {
 }
 
 try {
-    if (!is_readable('config.core.php')) {
-        throw new FileNotFoundException("cast could not find your MODX installation's config.core.php; this is required");
-    }
-    require_once 'config.core.php';
-    require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
     require_once __DIR__ . '/../src/autoload.php';
 
-    $modx = modX::getInstance();
-    $modx->initialize('mgr');
-    $modx->setLogLevel(modX::LOG_LEVEL_INFO);
-    $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
+    $modxReady = is_readable('config.core.php');
 
-    $cast = new \Cast\Cast($modx);
+    if ($argv[1] === 'clone' || !$modxReady) {
+        $cast = new \Cast\Cast();
+    } else {
+        require_once 'config.core.php';
+        require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
+
+        $modx = modX::getInstance();
+        $modx->initialize('mgr');
+        $modx->setLogLevel(modX::LOG_LEVEL_INFO);
+        $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
+
+        $cast = new \Cast\Cast($modx);
+    }
 
     $controller = new \Cast\Controllers\CLIController();
     $response = $controller->handle($cast, $argv);

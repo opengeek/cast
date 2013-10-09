@@ -49,11 +49,14 @@ class Cast
      * @param \modX &$modx A reference to a modX instance to work with.
      * @param array $options An array of options for the Cast instance.
      */
-    public function __construct(\modX &$modx, array $options = array())
+    public function __construct(&$modx = null, array $options = array())
     {
-        $this->modx =& $modx;
+        $gitPath = null;
         $this->options = $options;
-        $gitPath = $this->getOption(self::GIT_PATH, null, $this->modx->getOption('base_path', null, MODX_BASE_PATH));
+        if ($modx instanceof \modX) {
+            $this->modx =& $modx;
+            $gitPath = $this->getOption(self::GIT_PATH, null, $this->modx->getOption('base_path', null, MODX_BASE_PATH));
+        }
         $this->git = new Git($gitPath, $options);
     }
 
