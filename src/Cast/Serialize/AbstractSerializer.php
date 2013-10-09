@@ -112,11 +112,13 @@ abstract class AbstractSerializer implements SerializerInterface
         if ($path === null) $path = $this->serializedModelPath;
         if (is_readable($path) && is_dir($path)) {
             $class = basename($path);
-            if (!in_array($class, $this->defaultModelExcludes)) {
+            if ($class !== basename($this->serializedModelPath) && !in_array($class, $this->defaultModelExcludes)) {
                 if ('xPDOObject' !== $class && !in_array($class, $processed)) {
                     $tableName = $this->cast->modx->getTableName($class);
                     if ($tableName) {
-                        $this->cast->modx->exec("TRUNCATE TABLE {$tableName}");
+                        if ($this->cast->modx->exec("TRUNCATE TABLE {$tableName}") !== false) {
+                            $processed[] = $class;
+                        }
                     }
                 }
                 $directory = new \DirectoryIterator($path);
