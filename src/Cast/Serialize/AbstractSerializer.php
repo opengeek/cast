@@ -77,12 +77,22 @@ abstract class AbstractSerializer implements SerializerInterface
      * Serialize a model to files that can be tracked by Git.
      *
      * @param null|array $model An optional serialization model.
+     * @param null|string $path The path to serialize the model to.
      * @param array $options An array of options for the process.
      */
-    public function serializeModel($model = null, array $options = array())
+    public function serializeModel($model = null, $path = null, array $options = array())
     {
         if ($model === null) $model = $this->getModel($options);
+        if ($path === null) $path = $this->serializedModelPath;
         foreach ($model as $class => $criteria) {
+            $this->cast->modx->getCacheManager()->deleteTree(
+                $path . $class,
+                array(
+                    'deleteTop' => false,
+                    'skipDirs' => true,
+                    'extensions' => array('.json')
+                )
+            );
             $iterator = $this->cast->modx->getIterator($class, $criteria, false);
             foreach ($iterator as $object) {
                 $this->serialize($object, $options);
@@ -95,17 +105,29 @@ abstract class AbstractSerializer implements SerializerInterface
      *
      * @param null|string $path An optional path for the serialized model; uses serializedModelPath if not set.
      * @param array $options An array of options for the process.
+     * @param array &$processed An array of already processed classes.
      */
-    public function unserializeModel($path = null, array $options = array())
+    public function unserializeModel($path = null, array $options = array(), array &$processed = array())
     {
         if ($path === null) $path = $this->serializedModelPath;
-        $directory = new \DirectoryIterator($path);
-        /** @var \SplFileInfo $file */
-        foreach ($directory as $file) {
-            if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
-            $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
-            if ($file->isFile() && $file->getExtension() === 'json') $this->unserialize($relPath);
-            if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath);
+        if (is_readable($path) && is_dir($path)) {
+            $class = basename($path);
+            if (!in_array($class, $this->defaultModelExcludes)) {
+                if ('xPDOObject' !== $class && !in_array($class, $processed)) {
+                    $tableName = $this->cast->modx->getTableName($class);
+                    if ($tableName) {
+                        $this->cast->modx->exec("TRUNCATE TABLE {$tableName}");
+                    }
+                }
+                $directory = new \DirectoryIterator($path);
+                /** @var \SplFileInfo $file */
+                foreach ($directory as $file) {
+                    if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
+                    $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
+                    if ($file->isFile() && $file->getExtension() === 'json') $this->unserialize($relPath);
+                    if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath, $options, $processed);
+                }
+            }
         }
     }
 
