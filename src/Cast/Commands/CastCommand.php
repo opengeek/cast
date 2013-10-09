@@ -40,14 +40,15 @@ abstract class CastCommand
     /**
      * Run the GitCommand wrapped by this CastCommand.
      *
-     * @param array $args An array of arguments.
+     * @param array $args An array of arguments for the command.
+     * @param array $opts An array of options for the command.
      *
-     * @throws \RuntimeException If an error occurs executing the GitCommand::run() method.
+     * @throws \RuntimeException If an unrecoverable error occurs running the GitCommand.
      * @return CastResponse The result of the GitCommand wrapped in a CastResponse object.
      */
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
-        return new CastResponse($this->cast->git->{$this->command}->run($args));
+        return new CastResponse($this->cast->git->{$this->command}->run($args, $opts));
     }
 
     /**

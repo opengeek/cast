@@ -16,11 +16,10 @@ class GitReset extends GitCommand
 {
     protected $command = 'reset';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $treeish = array_shift($args);
         $pathSpec = array_shift($args);
-        $args = array_shift($args);
 
         if (!is_string($treeish) || $treeish === '') {
             $treeish = 'HEAD';
@@ -35,22 +34,22 @@ class GitReset extends GitCommand
         }
 
         $command = $this->command;
-        if ($this->arg('patch', $args) || $this->arg('p', $args)) {
+        if ($this->arg('patch', $opts) || $this->arg('p', $opts)) {
             throw new \RuntimeException("git interactive patch mode not supported in Cast");
         }
-        if ($this->arg('q', $args)) $command .= ' --q';
-        elseif ($this->arg('quiet', $args)) $command .= ' --quiet';
+        if ($this->arg('q', $opts)) $command .= ' --q';
+        elseif ($this->arg('quiet', $opts)) $command .= ' --quiet';
 
         $ignorePaths = true;
-        if ($this->arg('soft', $args)) {
+        if ($this->arg('soft', $opts)) {
             $command .= ' --soft';
-        } elseif ($this->arg('mixed', $args)) {
+        } elseif ($this->arg('mixed', $opts)) {
             $command .= ' --mixed';
-        } elseif ($this->arg('hard', $args)) {
+        } elseif ($this->arg('hard', $opts)) {
             $command .= ' --hard';
-        } elseif ($this->arg('merge', $args)) {
+        } elseif ($this->arg('merge', $opts)) {
             $command .= ' --merge';
-        } elseif ($this->arg('keep', $args)) {
+        } elseif ($this->arg('keep', $opts)) {
             $command .= ' --keep';
         } else {
             $ignorePaths = false;

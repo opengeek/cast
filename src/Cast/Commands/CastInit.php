@@ -11,14 +11,17 @@
 namespace Cast\Commands;
 
 use Cast\Cast;
+use Cast\Response\CastResponse;
 
 class CastInit extends CastCommand
 {
     protected $command = 'init';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
-        $directory = isset($args[0]) && !empty($args[0]) ? $args[0] : $this->cast->git->getPath();
+        $directory = isset($args[0]) && !empty($args[0]) && $args[0] !== '0'
+            ? $args[0]
+            : $this->cast->git->getPath();
 
         if ($this->cast->git->isInitialized()) throw new \RuntimeException('Cannot reinitialize an existing git repository at ' . $directory);
 
@@ -28,6 +31,6 @@ class CastInit extends CastCommand
 
         $this->cast->serializeModel(null, rtrim($directory, '/') . '/' . $this->cast->getOption(Cast::SERIALIZED_MODEL_PATH, null, '.model/'));
 
-        return $this->cast->git->init->run($args);
+        return new CastResponse($this->cast->git->{$this->command}->run($args, $opts));
     }
 }

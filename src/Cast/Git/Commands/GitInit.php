@@ -16,19 +16,18 @@ class GitInit extends GitCommand
 {
     protected $command = 'init';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $directory = array_shift($args);
-        $args = array_shift($args);
 
         if ($this->git->isInitialized()) {
             throw new \RuntimeException("Cannot re-initialize an existing repository at {$directory}");
         }
 
         $command = $this->command;
-        if ($this->arg('quiet', $args)) $command .= ' --quiet';
-        if ($this->arg('bare', $args)) $command .= ' --bare';
-        if (($templateDirectory = $this->arg('template', $args)) !== false) $command .= " --template={$templateDirectory}";
+        if ($this->arg('quiet', $opts)) $command .= ' --quiet';
+        if ($this->arg('bare', $opts)) $command .= ' --bare';
+        if (($templateDirectory = $this->arg('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {

@@ -10,6 +10,8 @@
 
 namespace Cast\Commands;
 
+use Cast\Response\CastResponse;
+
 class CastBranch extends CastCommand
 {
     protected $command = 'branch';
@@ -46,40 +48,40 @@ class CastBranch extends CastCommand
         'D'
     );
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $commit = array_shift($args);
         $pattern = array_shift($args);
-        $args = array_shift($args);
 
-        if (array_intersect(array_keys($args), $this->setOptions)) {
-            return $this->set($commit, $pattern, $args);
-        } elseif (array_intersect(array_keys($args), $this->moveOptions)) {
-            return $this->move($commit, $pattern, $args);
-        } elseif (array_intersect(array_keys($args), $this->deleteOptions)) {
-            return $this->delete($commit, $args);
-        } elseif (array_intersect(array_keys($args), $this->listOptions)) {
-            return $this->get($commit, $pattern, $args);
+        if (array_intersect(array_keys($opts), $this->setOptions)) {
+            $results = $this->set($commit, $pattern, $opts);
+        } elseif (array_intersect(array_keys($opts), $this->moveOptions)) {
+            $results = $this->move($commit, $pattern, $opts);
+        } elseif (array_intersect(array_keys($opts), $this->deleteOptions)) {
+            $results = $this->delete($commit, $opts);
+        } else {
+            $results = $this->get($commit, $pattern, $opts);
         }
+        return new CastResponse($results);
     }
 
-    public function get($commit = null, $pattern = null, $args = null)
+    public function get($commit = null, $pattern = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($commit, $pattern, $args);
+        return $this->cast->git->{$this->command}->get($commit, $pattern, $opts);
     }
 
-    public function set($name, $startPoint = null, $args = null)
+    public function set($name, $startPoint = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->set($name, $startPoint, $args);
+        return $this->cast->git->{$this->command}->set($name, $startPoint, $opts);
     }
 
-    public function move($newBranch, $oldBranch = null, $args = null)
+    public function move($newBranch, $oldBranch = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($newBranch, $oldBranch, $args);
+        return $this->cast->git->{$this->command}->get($newBranch, $oldBranch, $opts);
     }
 
-    public function delete($name, $args = null)
+    public function delete($name, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($name, $args);
+        return $this->cast->git->{$this->command}->get($name, $opts);
     }
 }

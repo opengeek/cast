@@ -14,56 +14,55 @@ class GitCheckout extends GitCommand
 {
     protected $command = 'checkout';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $branch = array_shift($args);
         $paths = array_shift($args);
-        $args = array_shift($args);
 
         $usePaths = false;
         $separatePaths = false;
         $command = $this->command;
-        if ($this->arg('quiet', $args) || $this->arg('q', $args)) $command .= " --quiet";
-        if ($this->arg('detach', $args)) {
-            if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
-            if ($this->arg('merge', $args) || $this->arg('m', $args)) $command .= " --merge";
+        if ($this->arg('quiet', $opts) || $this->arg('q', $opts)) $command .= " --quiet";
+        if ($this->arg('detach', $opts)) {
+            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
+            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
             $command .= ' --detach';
-        } elseif ($this->arg('b', $args)) {
-            if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
-            if ($this->arg('merge', $args) || $this->arg('m', $args)) $command .= " --merge";
+        } elseif ($this->arg('b', $opts)) {
+            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
+            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
             $command .= " -b";
             $usePaths = true;
-        } elseif ($this->arg('B', $args)) {
-            if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
-            if ($this->arg('merge', $args) || $this->arg('m', $args)) $command .= " --merge";
+        } elseif ($this->arg('B', $opts)) {
+            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
+            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
             $command .= " -B";
             $usePaths = true;
-        } elseif ($this->arg('orphan', $args)) {
-            if ($this->arg('force', $args) || $this->arg('f', $args)) $command .= ' --force';
-            if ($this->arg('merge', $args) || $this->arg('m', $args)) $command .= " --merge";
+        } elseif ($this->arg('orphan', $opts)) {
+            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
+            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
             $command .= " --orphan";
             $usePaths = true;
-        } elseif ($this->arg('ours', $args)) {
+        } elseif ($this->arg('ours', $opts)) {
             $command .= " --ours";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('theirs', $args)) {
+        } elseif ($this->arg('theirs', $opts)) {
             $command .= " --theirs";
             $usePaths = true;
             $separatePaths = true;
-        } elseif (($conflictStyle = $this->arg('conflict', $args))) {
+        } elseif (($conflictStyle = $this->arg('conflict', $opts))) {
             $command .= " --conflict={$conflictStyle}";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('merge', $args) || $this->arg('m', $args)) {
+        } elseif ($this->arg('merge', $opts) || $this->arg('m', $opts)) {
             $command .= " --merge";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('force', $args) || $this->arg('f', $args)) {
+        } elseif ($this->arg('force', $opts) || $this->arg('f', $opts)) {
             $command .= " --force";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('patch', $args) || $this->arg('p', $args)) {
+        } elseif ($this->arg('patch', $opts) || $this->arg('p', $opts)) {
             $command .= " --patch";
             $usePaths = true;
             $separatePaths = true;

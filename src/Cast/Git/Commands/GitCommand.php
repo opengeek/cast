@@ -24,16 +24,17 @@ abstract class GitCommand
 
     /** @var string The Git command represented by this class */
     protected $command;
-    protected $response;
 
     /**
      * Run the Git command.
      *
      * @param array $args An array of arguments for the command.
      *
+     * @param array $opts
+     *
      * @return mixed The results of the command.
      */
-    abstract public function run(array $args = array());
+    abstract public function run(array $args = array(), array $opts = array());
 
     public function __construct(&$git)
     {
@@ -58,7 +59,7 @@ abstract class GitCommand
      * @param string $command The complete Git CLI command string to execute.
      *
      * @throws \RuntimeException If an error occurs executing the command.
-     * @return string The stdout or stderr response from the Git command as appropriate.
+     * @return array The stdout or stderr response from the Git command as appropriate.
      */
     public function exec($command)
     {

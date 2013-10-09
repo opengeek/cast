@@ -16,31 +16,30 @@ class GitClone extends GitCommand
 {
     protected $command = 'clone';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $repository = array_shift($args);
         $directory = array_shift($args);
-        $args = array_shift($args);
 
         if ($this->git->isInitialized()) {
             throw new \RuntimeException("Cannot clone {$repository} into an existing repository at {$directory}");
         }
 
         $command = $this->command;
-        if ($this->arg('local', $args)) $command .= ' --local';
-        if ($this->arg('no-hardlinks', $args)) $command .= ' --no-hardlinks';
-        if (($shared = $this->arg('shared', $args)) != false) {
+        if ($this->arg('local', $opts)) $command .= ' --local';
+        if ($this->arg('no-hardlinks', $opts)) $command .= ' --no-hardlinks';
+        if (($shared = $this->arg('shared', $opts)) != false) {
             if (is_string($shared) || is_int($shared)) {
                 $command .= " --shared={$shared}";
             }
             $command .= ' --shared';
         }
-        if ($this->arg('quiet', $args)) $command .= ' --quiet';
-        if ($this->arg('bare', $args)) $command .= ' --bare';
-        if ($this->arg('mirror', $args)) $command .= ' --mirror';
-        if (!$this->arg('bare', $args) && !$this->arg('mirror', $args)) $command .= " --mirror";
-        if ($this->arg('no-checkout', $args)) $command .= " --no-checkout";
-        if (($templateDirectory = $this->arg('template', $args)) !== false) $command .= " --template={$templateDirectory}";
+        if ($this->arg('quiet', $opts)) $command .= ' --quiet';
+        if ($this->arg('bare', $opts)) $command .= ' --bare';
+        if ($this->arg('mirror', $opts)) $command .= ' --mirror';
+        if (!$this->arg('bare', $opts) && !$this->arg('mirror', $opts)) $command .= " --mirror";
+        if ($this->arg('no-checkout', $opts)) $command .= " --no-checkout";
+        if (($templateDirectory = $this->arg('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {

@@ -17,6 +17,10 @@ namespace Cast\Response;
  */
 class CastResponse
 {
+    /** @var string The command that was constructed and executed */
+    protected $command;
+    /** @var array An array of options */
+    protected $options;
     /** @var int The result code from the execution of a Git command. */
     protected $result;
     /** @var string The output produced during execution of the CastCommand. */
@@ -35,6 +39,8 @@ class CastResponse
         $this->result = (integer)$response[0];
         $this->output = $response[1];
         $this->errors = $response[2];
+        $this->command = $response[3];
+        $this->options = $response[4];
     }
 
     /**
@@ -85,6 +91,26 @@ class CastResponse
     public function wasSuccessful()
     {
         return $this->result === 0;
+    }
+
+    /**
+     * Get the command string executed by Git.
+     *
+     * @return string The command string executed by Git
+     */
+    public function getCommand()
+    {
+        return $this->command;
+    }
+
+    /**
+     * Get the array of options passed to the Git command execution.
+     *
+     * @return array An array of options used when executing the command.
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 
     /**

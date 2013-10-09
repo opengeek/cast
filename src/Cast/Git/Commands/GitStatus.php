@@ -16,25 +16,23 @@ class GitStatus extends GitCommand
 {
     protected $command = 'status';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
-        $args = array_shift($args);
-
         $command = $this->command;
-        if ($this->arg('short', $args)) $command .= ' --short';
-        if ($this->arg('long', $args)) $command .= ' --long';
-        if ($this->arg('branch', $args)) $command .= ' --branch';
-        if ($this->arg('ignored', $args)) $command .= ' --ignored';
-        if (($when = $this->arg('ignore-submodules', $args)) != false) {
+        if ($this->arg('short', $opts)) $command .= ' --short';
+        if ($this->arg('long', $opts)) $command .= ' --long';
+        if ($this->arg('branch', $opts)) $command .= ' --branch';
+        if ($this->arg('ignored', $opts)) $command .= ' --ignored';
+        if (($when = $this->arg('ignore-submodules', $opts)) != false) {
             if ($when === true) {
                 $command .= ' --ignore-submodules';
             } else {
                 $command .= ' --ignore-submodules=' . $when;
             }
         }
-        if ($this->arg('ignored', $args)) $command .= ' --ignored';
-        if ($this->arg('porcelain', $args)) $command .= ' --porcelain';
-        if ($this->arg('x', $args)) $command .= ' -x';
+        if ($this->arg('ignored', $opts)) $command .= ' --ignored';
+        if ($this->arg('porcelain', $opts)) $command .= ' --porcelain';
+        if ($this->arg('x', $opts)) $command .= ' -x';
 
         return $this->exec($command);
     }

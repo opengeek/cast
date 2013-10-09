@@ -16,48 +16,50 @@ class GitAdd extends GitCommand
 {
     protected $command = 'add';
 
-    public function run(array $args = array())
+    public function run(array $args = array(), array $opts = array())
     {
         $pathSpec = array_shift($args);
-        $args = array_shift($args);
 
-        if ($pathSpec)
-        if ((is_string($pathSpec) && $pathSpec === '') || (is_array($pathSpec)) && empty($pathSpec)) {
-            $pathSpec = '.';
+        if ($pathSpec !== null) {
+            if ((is_string($pathSpec) && $pathSpec === '') || (is_array($pathSpec)) && empty($pathSpec)) {
+                $pathSpec = '.';
+            }
+            if (!is_array($pathSpec)) {
+                $pathSpec = array($pathSpec);
+            }
+            $paths = implode(" ", $pathSpec);
+        } else {
+            $paths = '';
         }
-        if (!is_array($pathSpec)) {
-            $pathSpec = array($pathSpec);
-        }
-        $paths = implode(" ", $pathSpec);
 
         $command = $this->command;
-        if ($this->arg('interactive', $args) || $this->arg('i', $args) || $this->arg('patch', $args) || $this->arg('p', $args)) {
+        if ($this->arg('interactive', $opts) || $this->arg('i', $opts) || $this->arg('patch', $opts) || $this->arg('p', $opts)) {
             throw new \RuntimeException("git interactive patch selection not supported by Cast");
         }
-        if ($this->arg('edit', $args) || $this->arg('e', $args)) {
+        if ($this->arg('edit', $opts) || $this->arg('e', $opts)) {
             throw new \RuntimeException("git interactive patch editing not supported by Cast");
         }
-        if ($this->arg('dry-run', $args) || $this->arg('n', $args)) {
+        if ($this->arg('dry-run', $opts) || $this->arg('n', $opts)) {
             $command .= ' --dry-run';
-            if ($this->arg('ignore-missing', $args)) $command .= ' --ignore-missing';
+            if ($this->arg('ignore-missing', $opts)) $command .= ' --ignore-missing';
         }
-        if ($this->arg('verbose', $args)) $command .= ' --verbose';
-        elseif ($this->arg('v', $args)) $command .= ' -v';
-        if ($this->arg('force', $args)) $command .= ' --force';
-        elseif ($this->arg('f', $args)) $command .= ' -f';
-        if ($this->arg('update', $args) || $this->arg('u', $args)) {
+        if ($this->arg('verbose', $opts)) $command .= ' --verbose';
+        elseif ($this->arg('v', $opts)) $command .= ' -v';
+        if ($this->arg('force', $opts)) $command .= ' --force';
+        elseif ($this->arg('f', $opts)) $command .= ' -f';
+        if ($this->arg('update', $opts) || $this->arg('u', $opts)) {
             $command .= ' --update';
-        } elseif ($this->arg('all', $args) || $this->arg('A', $args) || $this->arg('no-ignore-removal', $args)) {
+        } elseif ($this->arg('all', $opts) || $this->arg('A', $opts) || $this->arg('no-ignore-removal', $opts)) {
             $command .= ' --all';
-        } elseif ($this->arg('no-all', $args) || $this->arg('ignore-removal', $args)) {
+        } elseif ($this->arg('no-all', $opts) || $this->arg('ignore-removal', $opts)) {
             $command .= ' --no-all';
         }
-        if ($this->arg('intent-to-add', $args)) $command .= ' --intent-to-add';
-        elseif ($this->arg('N', $args)) $command .= ' -N';
-        if ($this->arg('refresh', $args)) $command .= ' --refresh';
-        if ($this->arg('ignore-errors', $args)) $command .= ' --ignore-errors';
+        if ($this->arg('intent-to-add', $opts)) $command .= ' --intent-to-add';
+        elseif ($this->arg('N', $opts)) $command .= ' -N';
+        if ($this->arg('refresh', $opts)) $command .= ' --refresh';
+        if ($this->arg('ignore-errors', $opts)) $command .= ' --ignore-errors';
         if ($paths === '.') $command .= " {$paths}";
-        else $command .= " -- {$paths}";
+        elseif (!empty($paths)) $command .= " -- {$paths}";
 
         return $this->exec($command);
     }

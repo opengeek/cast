@@ -33,8 +33,9 @@ class CLIController implements ControllerInterface
     {
         $this->cast = &$cast;
         $this->parseArgs($args);
-        $results = $this->cast->{$this->command}->run($this->arguments + $this->options);
-        return new ControllerResponse($this, $results);
+        $results = $this->cast->{$this->command}->run($this->arguments, $this->options);
+        $response = new ControllerResponse($this, $results);
+        return $response;
     }
 
     /**
