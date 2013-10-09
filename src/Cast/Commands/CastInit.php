@@ -11,15 +11,14 @@
 namespace Cast\Commands;
 
 use Cast\Cast;
-use Cast\Response\CastResponse;
 
 class CastInit extends CastCommand
 {
     protected $command = 'init';
 
-    public function run(array $args = array(), array $opts = array())
+    public function beforeRun(array $args = array(), array $opts = array())
     {
-        $directory = array_shift($args);
+        $directory = isset($args[0]) ? $args[0] : '';
         if (empty($directory)) {
             $directory = $this->cast->git->getPath();
         } else {
@@ -32,8 +31,8 @@ class CastInit extends CastCommand
             throw new \RuntimeException('Cast does not currently support bare repositories');
         }
 
-        $this->cast->getSerializer()->serializeModel();
-
-        return new CastResponse($this->cast->git->{$this->command}->run($args, $opts));
+        if ($this->isImplicitMode($opts)) {
+            $this->cast->getSerializer()->serializeModel();
+        }
     }
 }

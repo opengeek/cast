@@ -20,11 +20,14 @@ use Cast\Response\CastResponse;
  */
 abstract class CastCommand
 {
+    const SERIALIZE_NOW = 'cast.serialize';
+
     /** @var Cast */
     public $cast;
 
     /** @var string The command string for this CastCommand */
     protected $command;
+    /** @var CastResponse */
     protected $response;
 
     /**
@@ -48,7 +51,31 @@ abstract class CastCommand
      */
     public function run(array $args = array(), array $opts = array())
     {
-        return new CastResponse($this->cast->git->{$this->command}->run($args, $opts));
+        $this->response = new CastResponse();
+        $this->beforeRun($args, $opts);
+        $this->response->fromResult($this->cast->git->{$this->command}->run($args, $opts));
+        $this->afterRun($args, $opts);
+        return $this->response;
+    }
+
+    /**
+     * Override this method to implement logic before the GitCommand::run() method is invoked.
+     *
+     * @param array $args An array of arguments for the command.
+     * @param array $opts An array of options for the command.
+     */
+    public function beforeRun(array $args = array(), array $opts = array())
+    {
+    }
+
+    /**
+     * Override this method to implement logic after the GitCommand::run() method is invoked.
+     *
+     * @param array $args An array of arguments for the command.
+     * @param array $opts An array of options for the command.
+     */
+    public function afterRun(array $args = array(), array $opts = array())
+    {
     }
 
     /**
@@ -67,5 +94,17 @@ abstract class CastCommand
             $value = $opts[$key];
         }
         return $value;
+    }
+
+    /**
+     * Determines if Cast should implicitly serialize the model data.
+     *
+     * @param array $opts An array of command options.
+     *
+     * @return bool true if
+     */
+    protected function isImplicitMode(array $opts = array()) {
+        return (integer)$this->cast->getOption(Cast::SERIALIZER_MODE, $opts, 0) < 1
+            || (integer)$this->opt(CastCommand::SERIALIZE_NOW, $opts);
     }
 }

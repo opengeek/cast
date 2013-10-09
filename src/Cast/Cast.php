@@ -24,9 +24,13 @@ use Cast\Serialize\AbstractSerializer;
 class Cast
 {
     const GIT_PATH = 'cast.git_path';
+    const SERIALIZER_MODE = 'cast.serializer_mode';
     const SERIALIZER_CLASS = 'cast.serializer_class';
     const SERIALIZED_MODEL_PATH = 'cast.serialized_model_path';
     const SERIALIZED_MODEL_EXCLUDES = 'cast.serialized_model_excludes';
+
+    const SERIALIZER_MODE_IMPLICIT = 0;
+    const SERIALIZER_MODE_EXPLICIT = 1;
 
     /** @var \modX The MODX instance referenced by this Cast instance. */
     public $modx;

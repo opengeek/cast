@@ -13,4 +13,11 @@ namespace Cast\Commands;
 class CastRm extends CastCommand
 {
     protected $command = 'rm';
+
+    public function afterRun(array $args = array(), array $opts = array())
+    {
+        if ($this->isImplicitMode($opts)) {
+            $this->cast->getSerializer()->unserializeModel();
+        }
+    }
 }

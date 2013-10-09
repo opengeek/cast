@@ -13,4 +13,11 @@ namespace Cast\Commands;
 class CastReset extends CastCommand
 {
     protected $command = 'reset';
+
+    public function afterRun(array $args = array(), array $opts = array())
+    {
+        if ($this->isImplicitMode($opts)) {
+            $this->cast->getSerializer()->unserializeModel();
+        }
+    }
 }

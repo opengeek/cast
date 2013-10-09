@@ -10,7 +10,16 @@
 
 namespace Cast\Commands;
 
+use Cast\Cast;
+
 class CastAdd extends CastCommand
 {
     protected $command = 'add';
+
+    public function beforeRun(array $args = array(), array $opts = array())
+    {
+        if ($this->isImplicitMode($opts)) {
+            $this->cast->getSerializer()->serializeModel();
+        }
+    }
 }

@@ -54,7 +54,7 @@ abstract class AbstractSerializer implements SerializerInterface
      *
      * @return array An array of model classes and attributes defining their serialization.
      */
-    public function getDefaultModel(array $options = array())
+    public function getModel(array $options = array())
     {
         $excludes = array_merge(
             $this->defaultModelExcludes,
@@ -81,7 +81,7 @@ abstract class AbstractSerializer implements SerializerInterface
      */
     public function serializeModel($model = null, array $options = array())
     {
-        if ($model === null) $model = $this->getDefaultModel($options);
+        if ($model === null) $model = $this->getModel($options);
         foreach ($model as $class => $criteria) {
             $iterator = $this->cast->modx->getIterator($class, $criteria, false);
             foreach ($iterator as $object) {

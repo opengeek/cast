@@ -13,4 +13,11 @@ namespace Cast\Commands;
 class CastStatus extends CastCommand
 {
     protected $command = 'status';
+
+    public function beforeRun(array $args = array(), array $opts = array())
+    {
+        if ($this->isImplicitMode($opts)) {
+            $this->cast->getSerializer()->serializeModel();
+        }
+    }
 }

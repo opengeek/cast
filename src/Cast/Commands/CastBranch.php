@@ -50,38 +50,45 @@ class CastBranch extends CastCommand
 
     public function run(array $args = array(), array $opts = array())
     {
-        $commit = array_shift($args);
-        $pattern = array_shift($args);
+        $this->response = new CastResponse();
+
+        $this->beforeRun($args, $opts);
+
+        $commit = isset($args[0]) ? $args[0] : null;
+        $pattern = isset($args[1]) ? $args[1] : null;
 
         if (array_intersect(array_keys($opts), $this->setOptions)) {
-            $results = $this->set($commit, $pattern, $opts);
+            $this->set($commit, $pattern, $opts);
         } elseif (array_intersect(array_keys($opts), $this->moveOptions)) {
-            $results = $this->move($commit, $pattern, $opts);
+            $this->move($commit, $pattern, $opts);
         } elseif (array_intersect(array_keys($opts), $this->deleteOptions)) {
-            $results = $this->delete($commit, $opts);
+            $this->delete($commit, $opts);
         } else {
-            $results = $this->get($commit, $pattern, $opts);
+            $this->get($commit, $pattern, $opts);
         }
-        return new CastResponse($results);
+
+        $this->afterRun($args, $opts);
+
+        return $this->response;
     }
 
     public function get($commit = null, $pattern = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->get($commit, $pattern, $opts);
+        $this->response->fromResult($this->cast->git->{$this->command}->get($commit, $pattern, $opts));
     }
 
     public function set($name, $startPoint = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->set($name, $startPoint, $opts);
+        $this->response->fromResult($this->cast->git->{$this->command}->set($name, $startPoint, $opts));
     }
 
     public function move($newBranch, $oldBranch = null, $opts = null)
     {
-        return $this->cast->git->{$this->command}->move($newBranch, $oldBranch, $opts);
+        $this->response->fromResult($this->cast->git->{$this->command}->move($newBranch, $oldBranch, $opts));
     }
 
     public function delete($name, $opts = null)
     {
-        return $this->cast->git->{$this->command}->delete($name, $opts);
+        $this->response->fromResult($this->cast->git->{$this->command}->delete($name, $opts));
     }
 }

@@ -28,19 +28,30 @@ class CastResponse
     /** @var string Errors produced during execution of the CastCommand. */
     protected $errors;
 
+    private $_initialized = false;
+
     /**
      * Construct a new CastResponse instance.
      *
      * @param array $response An array returned from GitCommand::exec() containing an execution
      * code, any output, and any errors produced by the process.
      */
-    public function __construct(array $response)
+    public function __construct(array $response = array())
     {
-        $this->result = (integer)$response[0];
-        $this->output = $response[1];
-        $this->errors = $response[2];
-        $this->command = $response[3];
-        $this->options = $response[4];
+        if (!empty($response) && count($response) === 5) {
+            $this->result = (integer)$response[0];
+            $this->output = $response[1];
+            $this->errors = $response[2];
+            $this->command = $response[3];
+            $this->options = $response[4];
+            $this->_initialized = true;
+        } else {
+            $this->result = -1;
+            $this->output = '';
+            $this->errors = '';
+            $this->command = '';
+            $this->options = array();
+        }
     }
 
     /**
@@ -53,6 +64,11 @@ class CastResponse
         return $this->result;
     }
 
+    public function setResult($result = 0)
+    {
+        $this->result = (integer)$result;
+    }
+
     /**
      * Get the output produced by the CastCommand being executed.
      *
@@ -63,6 +79,11 @@ class CastResponse
         return $this->output;
     }
 
+    public function addOutput($output)
+    {
+        $this->output .= trim($output, "\n") . "\n";
+    }
+
     /**
      * Get the errors produced by the CastCommand being executed.
      *
@@ -71,6 +92,11 @@ class CastResponse
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function addErrors($errors)
+    {
+        $this->errors .= trim($errors, "\n") . "\n";
     }
 
     /**
@@ -130,6 +156,30 @@ class CastResponse
             ),
             $options
         );
+    }
+
+    /**
+     * Update an existing response from a GitCommand::run() result.
+     *
+     * @param array $result An array result from a GitCommand::run() method call.
+     *
+     * @throws \RuntimeException If the result is not an array with 5 elements
+     * or the response has already been initialized with a GitCommand::run() result.
+     */
+    public function fromResult($result)
+    {
+        if ($this->_initialized) {
+            throw new \RuntimeException("this response has already been initialized from a GitCommand::run() method");
+        }
+        if (!is_array($result) || count($result) !== 5) {
+            throw new \RuntimeException("invalid result provided to CastResponse");
+        }
+        $this->setResult($result[0]);
+        $this->addOutput($result[1]);
+        $this->addErrors($result[2]);
+        $this->command = $result[3];
+        $this->options = $result[4];
+        $this->_initialized = true;
     }
 
     /**
