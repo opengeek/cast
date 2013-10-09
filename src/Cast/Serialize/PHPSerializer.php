@@ -11,9 +11,9 @@
 namespace Cast\Serialize;
 
 
-class JSONSerializer extends AbstractSerializer
+class PHPSerializer extends AbstractSerializer
 {
-    protected $fileExtension = 'json';
+    protected $fileExtension = 'model';
 
     /**
      * Serialize a model object to file.
@@ -46,7 +46,7 @@ class JSONSerializer extends AbstractSerializer
             'object'   => $object->toArray('', true, false, true)
         );
         $path .= str_replace('\\', '/', implode('/', $segments));
-        return $this->cast->modx->getCacheManager()->writeFile($path, json_encode($data, version_compare(phpversion(), '5.4.0', '>=') ? JSON_PRETTY_PRINT : 0));
+        return $this->cast->modx->getCacheManager()->writeFile($path, "<?php return " . var_export($data, true) . ";\n");
     }
 
     /**
@@ -60,16 +60,16 @@ class JSONSerializer extends AbstractSerializer
      */
     public function unserialize($path, array $options = array())
     {
-        if (is_readable($this->serializedModelPath . $path)) {
-            $data = file_get_contents($this->serializedModelPath . $path);
-            if (is_string($data)) {
-                $payload = json_decode($data, true);
+        $absPath = $this->serializedModelPath . $path;
+        if (is_readable($absPath)) {
+            $data = include $absPath;
+            if (is_array($data) && isset($data['class']) && isset($data['object'])) {
                 /** @var \xPDOObject $object */
-                if (($object = $this->cast->modx->getObject($payload['class'], $payload['criteria'])) === null) {
-                    $object = $this->cast->modx->newObject($payload['class']);
-                    $object->fromArray($payload['object'], '', true, true);
+                if (($object = $this->cast->modx->getObject($data['class'], $data['criteria'])) === null) {
+                    $object = $this->cast->modx->newObject($data['class']);
+                    $object->fromArray($data['object'], '', true, true);
                 } else {
-                    $object->fromArray($payload['object'], '', true, true);
+                    $object->fromArray($data['object'], '', true, true);
                 }
                 return $object->save();
             }

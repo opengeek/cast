@@ -35,6 +35,8 @@ abstract class AbstractSerializer implements SerializerInterface
         'modPrincipal',
         'modSession',
     );
+    /** @var string The file extension used for serialized files. */
+    protected $fileExtension;
 
     /**
      * Get a Serializer instance.
@@ -90,7 +92,7 @@ abstract class AbstractSerializer implements SerializerInterface
                 array(
                     'deleteTop' => false,
                     'skipDirs' => true,
-                    'extensions' => array('.json')
+                    'extensions' => array(".{$this->fileExtension}")
                 )
             );
             $iterator = $this->cast->modx->getIterator($class, $criteria, false);
@@ -126,7 +128,7 @@ abstract class AbstractSerializer implements SerializerInterface
                 foreach ($directory as $file) {
                     if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
                     $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
-                    if ($file->isFile() && $file->getExtension() === 'json') $this->unserialize($relPath);
+                    if ($file->isFile() && $file->getExtension() === $this->fileExtension) $this->unserialize($relPath);
                     if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath, $options, $processed);
                 }
             }
