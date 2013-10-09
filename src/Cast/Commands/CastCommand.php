@@ -104,11 +104,11 @@ abstract class CastCommand
      * @return bool true if
      */
     protected function shouldSerialize(array $opts = array()) {
-        $isImplicit = ((integer)$this->cast->getOption(Cast::SERIALIZER_MODE, $opts, 0) < 1);
+        $shouldSerialize = ((integer)$this->cast->getOption(Cast::SERIALIZER_MODE, $opts, 0) < 1);
         $serializeOpt = $this->opt(CastCommand::SERIALIZE, $opts, null);
         if ($serializeOpt !== null) {
-            $isImplicit = (bool)$serializeOpt;
+            $shouldSerialize = (bool)$serializeOpt;
         }
-        return $isImplicit;
+        return $shouldSerialize;
     }
 }
