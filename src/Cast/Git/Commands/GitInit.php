@@ -25,9 +25,9 @@ class GitInit extends GitCommand
         }
 
         $command = $this->command;
-        if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-        if ($this->arg('bare', $opts)) $command .= ' --bare';
-        if (($templateDirectory = $this->arg('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
+        if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+        if ($this->opt('bare', $opts)) $command .= ' --bare';
+        if (($templateDirectory = $this->opt('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {

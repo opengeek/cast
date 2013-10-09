@@ -67,19 +67,19 @@ class GitBranch extends GitCommand
     public function get($commit = null, $pattern = null, $opts = null)
     {
         $command = $this->command;
-        if ($this->arg('list', $opts)) $command .= " --list";
-        if ($this->arg('all', $opts) || $this->arg('a', $opts)) {
+        if ($this->opt('list', $opts)) $command .= " --list";
+        if ($this->opt('all', $opts) || $this->opt('a', $opts)) {
             $command .= ' --all';
-        } elseif ($this->arg('remotes', $opts) || $this->arg('r', $opts)) {
+        } elseif ($this->opt('remotes', $opts) || $this->opt('r', $opts)) {
             $command .= ' --remotes';
         }
-        if ($this->arg('verbose', $opts) || $this->arg('v', $opts) || $this->arg('vv', $opts)) $command .= ' --verbose';
-        if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
-        if ($this->arg('merged', $opts)) {
+        if ($this->opt('verbose', $opts) || $this->opt('v', $opts) || $this->opt('vv', $opts)) $command .= ' --verbose';
+        if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
+        if ($this->opt('merged', $opts)) {
             $command .= ' --merged';
-        } elseif ($this->arg('no-merged', $opts)) {
+        } elseif ($this->opt('no-merged', $opts)) {
             $command .= ' --no-merged';
-        } elseif ($this->arg('contains', $opts)) {
+        } elseif ($this->opt('contains', $opts)) {
             $command .= ' --contains';
         }
         if (!empty($commit)) {
@@ -96,17 +96,17 @@ class GitBranch extends GitCommand
     public function set($name, $startPoint = null, $opts = null)
     {
         $command = $this->command;
-        if (($upstream = $this->arg('set-upstream-to', $opts)) !== false || ($upstream = $this->arg('u', $opts))) {
+        if (($upstream = $this->opt('set-upstream-to', $opts)) !== false || ($upstream = $this->opt('u', $opts))) {
             $command .= " --set-upstream-to={$upstream}";
-        } elseif ($this->arg('set-upstream', $opts)) {
+        } elseif ($this->opt('set-upstream', $opts)) {
             $command .= " --set-upstream";
-        } elseif ($this->arg('track', $opts)) {
+        } elseif ($this->opt('track', $opts)) {
             $command .= " --track";
-        } elseif ($this->arg('no-track', $opts)) {
+        } elseif ($this->opt('no-track', $opts)) {
             $command .= " --no-track";
         }
-        if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= " --force";
-        if ($this->arg('create-reflog', $opts) || $this->arg('l', $opts)) $command .= " -l";
+        if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= " --force";
+        if ($this->opt('create-reflog', $opts) || $this->opt('l', $opts)) $command .= " -l";
         $command .= " {$name}";
         if (!empty($startPoint)) $command .= " {$startPoint}";
 
@@ -116,9 +116,9 @@ class GitBranch extends GitCommand
     public function move($newBranch, $oldBranch = null, $opts = null)
     {
         $command = $this->command;
-        if ($this->arg('m', $opts) || $this->arg('move', $opts)) {
+        if ($this->opt('m', $opts) || $this->opt('move', $opts)) {
             $command .= " --move";
-        } elseif ($this->arg('M', $opts)) {
+        } elseif ($this->opt('M', $opts)) {
             $command .= " -M";
         }
         if (!empty($oldBranch)) $command .= " {$oldBranch}";
@@ -130,12 +130,12 @@ class GitBranch extends GitCommand
     public function delete($name, $opts = null)
     {
         $command = $this->command;
-        if ($this->arg('d', $opts) || $this->arg('delete', $opts)) {
+        if ($this->opt('d', $opts) || $this->opt('delete', $opts)) {
             $command .= " --delete";
-        } elseif ($this->arg('D', $opts)) {
+        } elseif ($this->opt('D', $opts)) {
             $command .= " -D";
         }
-        if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
+        if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
         $command .= " {$name}";
 
         return $this->exec($command);

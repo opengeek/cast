@@ -52,19 +52,19 @@ abstract class CastCommand
     }
 
     /**
-     * Get an argument value by key for this command.
+     * Get an option value by key for this command.
      *
-     * @param string $key The argument key.
-     * @param array $args An array of arguments to search in.
+     * @param string $key The option key.
+     * @param array $opts An array of options to search in.
      * @param mixed $default The default value to return if not found.
      *
-     * @return mixed The argument value or the default if not found.
+     * @return mixed The option value or the default if not found.
      */
-    public function arg($key, $args, $default = false)
+    public function opt($key, $opts, $default = false)
     {
         $value = $default;
-        if (is_array($args) && array_key_exists($key, $args)) {
-            $value = $args[$key];
+        if (is_array($opts) && array_key_exists($key, $opts)) {
+            $value = $opts[$key];
         }
         return $value;
     }

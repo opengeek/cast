@@ -29,15 +29,15 @@ class GitRm extends GitCommand
         $paths = implode(" ", $pathSpec);
 
         $command = $this->command;
-        if ($this->arg('dry-run', $opts)) $command .= ' --dry-run';
-        elseif ($this->arg('n', $opts)) $command .= ' -n';
-        if ($this->arg('force', $opts)) $command .= ' --force';
-        elseif ($this->arg('f', $opts)) $command .= ' -f';
-        if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-        elseif ($this->arg('q', $opts)) $command .= ' -q';
-        if ($this->arg('r', $opts)) $command .= ' -r';
-        if ($this->arg('cached', $opts)) $command .= ' --cached';
-        if ($this->arg('ignore-unmatch', $opts)) $command .= ' --ignore-unmatch';
+        if ($this->opt('dry-run', $opts)) $command .= ' --dry-run';
+        elseif ($this->opt('n', $opts)) $command .= ' -n';
+        if ($this->opt('force', $opts)) $command .= ' --force';
+        elseif ($this->opt('f', $opts)) $command .= ' -f';
+        if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+        elseif ($this->opt('q', $opts)) $command .= ' -q';
+        if ($this->opt('r', $opts)) $command .= ' -r';
+        if ($this->opt('cached', $opts)) $command .= ' --cached';
+        if ($this->opt('ignore-unmatch', $opts)) $command .= ' --ignore-unmatch';
         $command .= " -- {$paths}";
 
         return $this->exec($command);

@@ -22,47 +22,47 @@ class GitCheckout extends GitCommand
         $usePaths = false;
         $separatePaths = false;
         $command = $this->command;
-        if ($this->arg('quiet', $opts) || $this->arg('q', $opts)) $command .= " --quiet";
-        if ($this->arg('detach', $opts)) {
-            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
-            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
+        if ($this->opt('quiet', $opts) || $this->opt('q', $opts)) $command .= " --quiet";
+        if ($this->opt('detach', $opts)) {
+            if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
+            if ($this->opt('merge', $opts) || $this->opt('m', $opts)) $command .= " --merge";
             $command .= ' --detach';
-        } elseif ($this->arg('b', $opts)) {
-            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
-            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
+        } elseif ($this->opt('b', $opts)) {
+            if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
+            if ($this->opt('merge', $opts) || $this->opt('m', $opts)) $command .= " --merge";
             $command .= " -b";
             $usePaths = true;
-        } elseif ($this->arg('B', $opts)) {
-            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
-            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
+        } elseif ($this->opt('B', $opts)) {
+            if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
+            if ($this->opt('merge', $opts) || $this->opt('m', $opts)) $command .= " --merge";
             $command .= " -B";
             $usePaths = true;
-        } elseif ($this->arg('orphan', $opts)) {
-            if ($this->arg('force', $opts) || $this->arg('f', $opts)) $command .= ' --force';
-            if ($this->arg('merge', $opts) || $this->arg('m', $opts)) $command .= " --merge";
+        } elseif ($this->opt('orphan', $opts)) {
+            if ($this->opt('force', $opts) || $this->opt('f', $opts)) $command .= ' --force';
+            if ($this->opt('merge', $opts) || $this->opt('m', $opts)) $command .= " --merge";
             $command .= " --orphan";
             $usePaths = true;
-        } elseif ($this->arg('ours', $opts)) {
+        } elseif ($this->opt('ours', $opts)) {
             $command .= " --ours";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('theirs', $opts)) {
+        } elseif ($this->opt('theirs', $opts)) {
             $command .= " --theirs";
             $usePaths = true;
             $separatePaths = true;
-        } elseif (($conflictStyle = $this->arg('conflict', $opts))) {
+        } elseif (($conflictStyle = $this->opt('conflict', $opts))) {
             $command .= " --conflict={$conflictStyle}";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('merge', $opts) || $this->arg('m', $opts)) {
+        } elseif ($this->opt('merge', $opts) || $this->opt('m', $opts)) {
             $command .= " --merge";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('force', $opts) || $this->arg('f', $opts)) {
+        } elseif ($this->opt('force', $opts) || $this->opt('f', $opts)) {
             $command .= " --force";
             $usePaths = true;
             $separatePaths = true;
-        } elseif ($this->arg('patch', $opts) || $this->arg('p', $opts)) {
+        } elseif ($this->opt('patch', $opts) || $this->opt('p', $opts)) {
             $command .= " --patch";
             $usePaths = true;
             $separatePaths = true;

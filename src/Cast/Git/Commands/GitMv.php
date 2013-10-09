@@ -24,13 +24,13 @@ class GitMv extends GitCommand
         }
 
         $command = $this->command;
-        if ($this->arg('dry-run', $opts)) $command .= ' --dry-run';
-        elseif ($this->arg('n', $opts)) $command .= ' -n';
-        if ($this->arg('force', $opts)) $command .= ' --force';
-        elseif ($this->arg('f', $opts)) $command .= ' -f';
-        if ($this->arg('verbose', $opts)) $command .= ' --verbose';
-        elseif ($this->arg('v', $opts)) $command .= ' -v';
-        if ($this->arg('k', $opts)) $command .= ' -k';
+        if ($this->opt('dry-run', $opts)) $command .= ' --dry-run';
+        elseif ($this->opt('n', $opts)) $command .= ' -n';
+        if ($this->opt('force', $opts)) $command .= ' --force';
+        elseif ($this->opt('f', $opts)) $command .= ' -f';
+        if ($this->opt('verbose', $opts)) $command .= ' --verbose';
+        elseif ($this->opt('v', $opts)) $command .= ' -v';
+        if ($this->opt('k', $opts)) $command .= ' -k';
 
         if (is_array($source)) $source = implode(" ", $source);
         $command .= " {$source}";

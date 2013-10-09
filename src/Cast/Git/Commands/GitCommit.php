@@ -19,87 +19,87 @@ class GitCommit extends GitCommand
         $files = array_shift($args);
 
         $command = $this->command;
-        if ($this->arg('short', $opts)) {
+        if ($this->opt('short', $opts)) {
             $command .= " --short";
-            if ($this->arg('branch', $opts)) $command .= " --branch";
-            if ($this->arg('null', $opts) || $this->arg('z', $opts)) $command .= " --null";
+            if ($this->opt('branch', $opts)) $command .= " --branch";
+            if ($this->opt('null', $opts) || $this->opt('z', $opts)) $command .= " --null";
         }
-        if ($this->arg('long', $opts)) {
+        if ($this->opt('long', $opts)) {
             $command .= " --long";
         }
-        if ($this->arg('dry-run', $opts)) {
+        if ($this->opt('dry-run', $opts)) {
             $command .= " --dry-run";
         }
-        if ($this->arg('porcelain', $opts)) {
+        if ($this->opt('porcelain', $opts)) {
             $command .= " --porcelain";
-            if ($this->arg('null', $opts) || $this->arg('z', $opts)) $command .= " --null";
+            if ($this->opt('null', $opts) || $this->opt('z', $opts)) $command .= " --null";
         }
-        if ($this->arg('all', $opts) || $this->arg('a', $opts)) {
+        if ($this->opt('all', $opts) || $this->opt('a', $opts)) {
             $command .= ' --all';
-        } elseif ($this->arg('interactive', $opts) || $this->arg('patch', $opts) || $this->arg('p', $opts)) {
+        } elseif ($this->opt('interactive', $opts) || $this->opt('patch', $opts) || $this->opt('p', $opts)) {
             throw new \RuntimeException("git interactive patch selection not supported by Cast");
         }
-        if ($this->arg('verbose', $opts) || $this->arg('v', $opts)) $command .= ' --verbose';
-        if ($this->arg('quiet', $opts) || $this->arg('q', $opts)) $command .= ' --quiet';
-        if (($commit = $this->arg('reuse-message', $opts)) || ($commit = $this->arg('C', $opts))) {
+        if ($this->opt('verbose', $opts) || $this->opt('v', $opts)) $command .= ' --verbose';
+        if ($this->opt('quiet', $opts) || $this->opt('q', $opts)) $command .= ' --quiet';
+        if (($commit = $this->opt('reuse-message', $opts)) || ($commit = $this->opt('C', $opts))) {
             $command .= " -C {$commit}";
         }
-        if (($commit = $this->arg('reedit-message', $opts)) || ($commit = $this->arg('c', $opts))) {
+        if (($commit = $this->opt('reedit-message', $opts)) || ($commit = $this->opt('c', $opts))) {
             throw new \RuntimeException('git commit -c {commit} not supported by Cast');
         }
-        if (($commit = $this->arg('fixup', $opts))) {
+        if (($commit = $this->opt('fixup', $opts))) {
             $command .= " --fixup={$commit}";
         }
-        if (($commit = $this->arg('squash', $opts))) {
+        if (($commit = $this->opt('squash', $opts))) {
             $command .= " --squash={$commit}";
         }
-        if (($mode = $this->arg('cleanup', $opts))) {
+        if (($mode = $this->opt('cleanup', $opts))) {
             $command .= " --cleanup={$mode}";
         }
-        if ($this->arg('allow-empty', $opts)) $command .= " --allow-empty";
-        if ($this->arg('reset-author', $opts)) $command .= " --reset-author";
-        if (($msgFile = $this->arg('file', $opts)) || ($msgFile = $this->arg('F', $opts))) {
+        if ($this->opt('allow-empty', $opts)) $command .= " --allow-empty";
+        if ($this->opt('reset-author', $opts)) $command .= " --reset-author";
+        if (($msgFile = $this->opt('file', $opts)) || ($msgFile = $this->opt('F', $opts))) {
             $command .= " --file={$msgFile}";
-        } elseif (($message = $this->arg('message', $opts)) || ($message = $this->arg('m', $opts))) {
+        } elseif (($message = $this->opt('message', $opts)) || ($message = $this->opt('m', $opts))) {
             $command .= " --message={$message}";
-        } elseif ($this->arg('allow-empty-message', $opts)) {
+        } elseif ($this->opt('allow-empty-message', $opts)) {
             $command .= " --allow-empty-message";
         } else {
             throw new \RuntimeException("git commit in Cast requires --file={file} or --message={message} options");
         }
-        if ($this->arg('edit', $opts) || $this->arg('e', $opts)) {
+        if ($this->opt('edit', $opts) || $this->opt('e', $opts)) {
             throw new \RuntimeException("git commit --edit not supported in Cast");
         }
-        if ($this->arg('amend', $opts)) {
-            if (!$this->arg('no-edit', $opts) && !$this->arg('message', $opts) && !$this->arg('m', $opts) &&
-                !$this->arg('file', $opts) && !$this->arg('F', $opts) && !$this->arg('allow-empty-message', $opts)
+        if ($this->opt('amend', $opts)) {
+            if (!$this->opt('no-edit', $opts) && !$this->opt('message', $opts) && !$this->opt('m', $opts) &&
+                !$this->opt('file', $opts) && !$this->opt('F', $opts) && !$this->opt('allow-empty-message', $opts)
             ) {
                 throw new \RuntimeException("git commit --amend requires -m, -F, --allow-empty-message or --no-edit in Cast");
             }
         }
-        if (($author = $this->arg('author', $opts))) {
+        if (($author = $this->opt('author', $opts))) {
             $command .= " --author={$author}";
         }
-        if (($date = $this->arg('date', $opts))) {
+        if (($date = $this->opt('date', $opts))) {
             $command .= " --date={$date}";
         }
-        if (($template = $this->arg('template', $opts)) || ($msgFile = $this->arg('t', $opts))) {
+        if (($template = $this->opt('template', $opts)) || ($msgFile = $this->opt('t', $opts))) {
             $command .= " --template={$template}";
         }
-        if ($this->arg('signoff', $opts) || $this->arg('s', $opts)) $command .= ' --signoff';
-        if ($this->arg('no-verify', $opts) || $this->arg('n', $opts)) $command .= ' --no-verify';
-        if ($this->arg('no-post-rewrite', $opts)) $command .= ' --no-post-rewrite';
+        if ($this->opt('signoff', $opts) || $this->opt('s', $opts)) $command .= ' --signoff';
+        if ($this->opt('no-verify', $opts) || $this->opt('n', $opts)) $command .= ' --no-verify';
+        if ($this->opt('no-post-rewrite', $opts)) $command .= ' --no-post-rewrite';
 
-        if (($mode = $this->arg('untracked-files', $opts)) || ($mode = $this->arg('u', $opts))) {
+        if (($mode = $this->opt('untracked-files', $opts)) || ($mode = $this->opt('u', $opts))) {
             $command .= " --untracked-files={$mode}";
         }
-        if (($keyId = $this->arg('gpg-sign', $opts)) || ($keyId = $this->arg('S', $opts))) {
+        if (($keyId = $this->opt('gpg-sign', $opts)) || ($keyId = $this->opt('S', $opts))) {
             $command .= " --gpg-sign={$keyId}";
         }
 
         if (!empty($files)) {
-            if ($this->arg('include', $opts) || $this->arg('i', $opts)) $command .= ' --include';
-            elseif ($this->arg('only', $opts) || $this->arg('o', $opts)) $command .= ' --only';
+            if ($this->opt('include', $opts) || $this->opt('i', $opts)) $command .= ' --include';
+            elseif ($this->opt('only', $opts) || $this->opt('o', $opts)) $command .= ' --only';
 
             if (!is_array($files)) $files = array($files);
             array_walk($files, function(&$value) {

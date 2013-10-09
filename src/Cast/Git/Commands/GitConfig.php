@@ -22,25 +22,25 @@ class GitConfig extends GitCommand
         $arg2 = array_shift($args);
         $arg3 = array_shift($args);
 
-        if (!$this->arg('global', $opts) && !$this->arg('system', $opts) && !$this->git->isInitialized()) {
+        if (!$this->opt('global', $opts) && !$this->opt('system', $opts) && !$this->git->isInitialized()) {
             throw new \BadMethodCallException();
         }
 
         $command = $this->command;
-        if ($this->arg('global', $opts)) $command .= " --global";
-        elseif ($this->arg('system', $opts)) $command .= " --system"; elseif ($this->arg('local', $opts)) $command .= " --local"; elseif (($file = $this->arg('file', $opts)) || ($file = $this->arg('f', $opts))) {
+        if ($this->opt('global', $opts)) $command .= " --global";
+        elseif ($this->opt('system', $opts)) $command .= " --system"; elseif ($this->opt('local', $opts)) $command .= " --local"; elseif (($file = $this->opt('file', $opts)) || ($file = $this->opt('f', $opts))) {
             $command .= " --f {$file}";
         }
 
-        if ($this->arg('get', $opts)) {
+        if ($this->opt('get', $opts)) {
             $this->_setReadArguments($command, $opts);
-        } elseif ($this->arg('get-all', $opts)) {
+        } elseif ($this->opt('get-all', $opts)) {
             $this->_setReadArguments($command, $opts);
-        } elseif ($this->arg('get-regexp', $opts)) {
+        } elseif ($this->opt('get-regexp', $opts)) {
             $this->_setReadArguments($command, $opts);
-        } elseif ($this->arg('list', $opts)) {
+        } elseif ($this->opt('list', $opts)) {
             $this->_setReadArguments($command, $opts);
-        } elseif ($this->arg('add', $opts)) {
+        } elseif ($this->opt('add', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --add requires a non-empty name argument');
             }
@@ -49,7 +49,7 @@ class GitConfig extends GitCommand
             }
             $command .= " {$arg1}";
             $command .= " {$arg2}";
-        } elseif ($this->arg('replace-all', $opts)) {
+        } elseif ($this->opt('replace-all', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --replace-all requires a non-empty name argument');
             }
@@ -59,19 +59,19 @@ class GitConfig extends GitCommand
             $command .= " {$arg1}";
             $command .= " {$arg2}";
             if (is_string($arg3) && $arg3 !== '') $command .= " {$arg3}";
-        } elseif ($this->arg('unset', $opts)) {
+        } elseif ($this->opt('unset', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --unset requires a non-empty name argument');
             }
             $command .= " {$arg1}";
             if (is_string($arg2) && $arg2 !== '') $command .= " {$arg2}";
-        } elseif ($this->arg('unset-all', $opts)) {
+        } elseif ($this->opt('unset-all', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --unset-all requires a non-empty name argument');
             }
             $command .= " {$arg1}";
             if (is_string($arg2) && $arg2 !== '') $command .= " {$arg2}";
-        } elseif ($this->arg('rename-section', $opts)) {
+        } elseif ($this->opt('rename-section', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --rename-section requires a non-empty old_name argument');
             }
@@ -80,7 +80,7 @@ class GitConfig extends GitCommand
             }
             $command .= " {$arg1}";
             $command .= " {$arg2}";
-        } elseif ($this->arg('remove-section', $opts)) {
+        } elseif ($this->opt('remove-section', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --remove-section requires a non-empty name argument');
             }
@@ -99,19 +99,19 @@ class GitConfig extends GitCommand
 
     protected function _setReadArguments(&$command, $opts)
     {
-        if (!$this->arg('list', $opts)) {
+        if (!$this->opt('list', $opts)) {
             $this->_setTypeArgument($command, $opts);
         }
-        if ($this->arg('null', $opts)) $command .= " --null";
-        elseif ($this->arg('z', $opts)) $command .= " -z";
+        if ($this->opt('null', $opts)) $command .= " --null";
+        elseif ($this->opt('z', $opts)) $command .= " -z";
 
-        if ($this->arg('includes', $opts)) $command .= " --includes";
-        elseif ($this->arg('no-includes', $opts)) $command .= " --no-includes";
+        if ($this->opt('includes', $opts)) $command .= " --includes";
+        elseif ($this->opt('no-includes', $opts)) $command .= " --no-includes";
     }
 
     protected function _setTypeArgument(&$command, $opts)
     {
-        if ($this->arg('bool', $opts)) $command .= " --bool";
-        elseif ($this->arg('int', $opts)) $command .= " --int"; elseif ($this->arg('bool-or-int', $opts)) $command .= " --bool-or-int";
+        if ($this->opt('bool', $opts)) $command .= " --bool";
+        elseif ($this->opt('int', $opts)) $command .= " --int"; elseif ($this->opt('bool-or-int', $opts)) $command .= " --bool-or-int";
     }
 }

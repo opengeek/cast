@@ -33,21 +33,21 @@ class GitStash extends GitCommand
                 break;
 
             case 'drop':
-                if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-                elseif ($this->arg('q', $opts)) $command .= ' -q';
+                if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+                elseif ($this->opt('q', $opts)) $command .= ' -q';
                 if (is_string($stash) && $stash !== '') $command .= " {$stash}";
                 break;
 
             case 'pop':
             case 'apply':
-                if ($this->arg('index', $opts)) $command .= ' --index';
-                if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-                elseif ($this->arg('q', $opts)) $command .= ' -q';
+                if ($this->opt('index', $opts)) $command .= ' --index';
+                if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+                elseif ($this->opt('q', $opts)) $command .= ' -q';
                 if (is_string($stash) && $stash !== '') $command .= " {$stash}";
                 break;
 
             case 'branch':
-                $branch = $this->arg('branch', $opts);
+                $branch = $this->opt('branch', $opts);
                 if (empty($branch) && $branch !== '0') throw new \RuntimeException('git stash branch requires a branch argument in Cast');
                 $command .= " {$branch}";
                 if (is_string($stash) && $stash !== '') $command .= " {$stash}";
@@ -64,16 +64,16 @@ class GitStash extends GitCommand
             case null:
 
             default:
-                if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-                elseif ($this->arg('q', $opts)) $command .= ' -q';
-                if ($this->arg('patch', $opts) || $this->arg('p', $opts)) throw new \RuntimeException('Cast does not support git interactive patch mode');
-                if ($this->arg('keep-index', $opts)) $command .= ' --keep-index';
-                elseif ($this->arg('no-keep-index', $opts)) $command .= ' --no-keep-index';
-                if ($this->arg('include-untracked', $opts)) $command .= ' --include-untracked';
-                elseif ($this->arg('u', $opts)) $command .= ' -u';
-                if ($this->arg('all', $opts)) $command .= ' --all';
-                elseif ($this->arg('a', $opts)) $command .= ' -a';
-                if (($msg = $this->arg('message', $opts))) $command .= " \"{$msg}\"";
+                if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+                elseif ($this->opt('q', $opts)) $command .= ' -q';
+                if ($this->opt('patch', $opts) || $this->opt('p', $opts)) throw new \RuntimeException('Cast does not support git interactive patch mode');
+                if ($this->opt('keep-index', $opts)) $command .= ' --keep-index';
+                elseif ($this->opt('no-keep-index', $opts)) $command .= ' --no-keep-index';
+                if ($this->opt('include-untracked', $opts)) $command .= ' --include-untracked';
+                elseif ($this->opt('u', $opts)) $command .= ' -u';
+                if ($this->opt('all', $opts)) $command .= ' --all';
+                elseif ($this->opt('a', $opts)) $command .= ' -a';
+                if (($msg = $this->opt('message', $opts))) $command .= " \"{$msg}\"";
                 elseif (is_string($stash) && $stash !== '') $command .= " \"{$stash}\"";
                 break;
         }

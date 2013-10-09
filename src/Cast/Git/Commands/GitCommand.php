@@ -41,14 +41,19 @@ abstract class GitCommand
         $this->git = & $git;
     }
 
-    public function arg($key, $args, $default = false)
+    /**
+     *
+     * @param $key
+     * @param $opts
+     * @param bool $default
+     *
+     * @return bool|string|mixed
+     */
+    public function opt($key, $opts, $default = false)
     {
         $value = $default;
-        if (is_array($args) && array_key_exists($key, $args)) {
-            $value = $args[$key];
-            if (is_string($value)) {
-                $value = escapeshellarg($value);
-            }
+        if (is_array($opts) && array_key_exists($key, $opts)) {
+            $value = $opts[$key];
         }
         return $value;
     }

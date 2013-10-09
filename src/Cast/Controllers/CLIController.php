@@ -103,13 +103,13 @@ class CLIController implements ControllerInterface
 
     private function parseArgs($args)
     {
-        $this->script = array_shift($args);
-        $this->command = array_shift($args);
+        $this->script = escapeshellcmd(array_shift($args));
+        $this->command = escapeshellcmd(array_shift($args));
         while ($arg = next($args)) {
             if (strpos($arg, '-') === 0) {
                 $this->addOption($arg);
             } else {
-                $this->arguments[] = $arg;
+                $this->arguments[] = escapeshellarg($arg);
             }
         }
     }
@@ -119,7 +119,7 @@ class CLIController implements ControllerInterface
         $option = ltrim($option, '-');
         if (strpos($option, '=') > 0) {
             $exploded = explode('=', $option, 2);
-            $this->options[$exploded[0]] = $exploded[1];
+            $this->options[escapeshellarg($exploded[0])] = escapeshellarg($exploded[1]);
         } else {
             $this->options[$option] = true;
         }

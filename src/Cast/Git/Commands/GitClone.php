@@ -26,20 +26,20 @@ class GitClone extends GitCommand
         }
 
         $command = $this->command;
-        if ($this->arg('local', $opts)) $command .= ' --local';
-        if ($this->arg('no-hardlinks', $opts)) $command .= ' --no-hardlinks';
-        if (($shared = $this->arg('shared', $opts)) != false) {
+        if ($this->opt('local', $opts)) $command .= ' --local';
+        if ($this->opt('no-hardlinks', $opts)) $command .= ' --no-hardlinks';
+        if (($shared = $this->opt('shared', $opts)) != false) {
             if (is_string($shared) || is_int($shared)) {
                 $command .= " --shared={$shared}";
             }
             $command .= ' --shared';
         }
-        if ($this->arg('quiet', $opts)) $command .= ' --quiet';
-        if ($this->arg('bare', $opts)) $command .= ' --bare';
-        if ($this->arg('mirror', $opts)) $command .= ' --mirror';
-        if (!$this->arg('bare', $opts) && !$this->arg('mirror', $opts)) $command .= " --mirror";
-        if ($this->arg('no-checkout', $opts)) $command .= " --no-checkout";
-        if (($templateDirectory = $this->arg('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
+        if ($this->opt('quiet', $opts)) $command .= ' --quiet';
+        if ($this->opt('bare', $opts)) $command .= ' --bare';
+        if ($this->opt('mirror', $opts)) $command .= ' --mirror';
+        if (!$this->opt('bare', $opts) && !$this->opt('mirror', $opts)) $command .= " --mirror";
+        if ($this->opt('no-checkout', $opts)) $command .= " --no-checkout";
+        if (($templateDirectory = $this->opt('template', $opts)) !== false) $command .= " --template={$templateDirectory}";
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {

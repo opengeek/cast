@@ -33,31 +33,31 @@ class GitAdd extends GitCommand
         }
 
         $command = $this->command;
-        if ($this->arg('interactive', $opts) || $this->arg('i', $opts) || $this->arg('patch', $opts) || $this->arg('p', $opts)) {
+        if ($this->opt('interactive', $opts) || $this->opt('i', $opts) || $this->opt('patch', $opts) || $this->opt('p', $opts)) {
             throw new \RuntimeException("git interactive patch selection not supported by Cast");
         }
-        if ($this->arg('edit', $opts) || $this->arg('e', $opts)) {
+        if ($this->opt('edit', $opts) || $this->opt('e', $opts)) {
             throw new \RuntimeException("git interactive patch editing not supported by Cast");
         }
-        if ($this->arg('dry-run', $opts) || $this->arg('n', $opts)) {
+        if ($this->opt('dry-run', $opts) || $this->opt('n', $opts)) {
             $command .= ' --dry-run';
-            if ($this->arg('ignore-missing', $opts)) $command .= ' --ignore-missing';
+            if ($this->opt('ignore-missing', $opts)) $command .= ' --ignore-missing';
         }
-        if ($this->arg('verbose', $opts)) $command .= ' --verbose';
-        elseif ($this->arg('v', $opts)) $command .= ' -v';
-        if ($this->arg('force', $opts)) $command .= ' --force';
-        elseif ($this->arg('f', $opts)) $command .= ' -f';
-        if ($this->arg('update', $opts) || $this->arg('u', $opts)) {
+        if ($this->opt('verbose', $opts)) $command .= ' --verbose';
+        elseif ($this->opt('v', $opts)) $command .= ' -v';
+        if ($this->opt('force', $opts)) $command .= ' --force';
+        elseif ($this->opt('f', $opts)) $command .= ' -f';
+        if ($this->opt('update', $opts) || $this->opt('u', $opts)) {
             $command .= ' --update';
-        } elseif ($this->arg('all', $opts) || $this->arg('A', $opts) || $this->arg('no-ignore-removal', $opts)) {
+        } elseif ($this->opt('all', $opts) || $this->opt('A', $opts) || $this->opt('no-ignore-removal', $opts)) {
             $command .= ' --all';
-        } elseif ($this->arg('no-all', $opts) || $this->arg('ignore-removal', $opts)) {
+        } elseif ($this->opt('no-all', $opts) || $this->opt('ignore-removal', $opts)) {
             $command .= ' --no-all';
         }
-        if ($this->arg('intent-to-add', $opts)) $command .= ' --intent-to-add';
-        elseif ($this->arg('N', $opts)) $command .= ' -N';
-        if ($this->arg('refresh', $opts)) $command .= ' --refresh';
-        if ($this->arg('ignore-errors', $opts)) $command .= ' --ignore-errors';
+        if ($this->opt('intent-to-add', $opts)) $command .= ' --intent-to-add';
+        elseif ($this->opt('N', $opts)) $command .= ' -N';
+        if ($this->opt('refresh', $opts)) $command .= ' --refresh';
+        if ($this->opt('ignore-errors', $opts)) $command .= ' --ignore-errors';
         if ($paths === '.') $command .= " {$paths}";
         elseif (!empty($paths)) $command .= " -- {$paths}";
 
