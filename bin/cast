@@ -34,7 +34,7 @@ if (function_exists('ini_set')) {
 
 try {
     if (!is_readable('config.core.php')) {
-        throw new FileNotFoundException("Cast could not find your MODX installation's config.core.php");
+        throw new FileNotFoundException("Cast could not find your MODX installation's config.core.php; this is required");
     }
     require_once 'config.core.php';
     require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
