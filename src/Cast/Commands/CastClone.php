@@ -13,4 +13,11 @@ namespace Cast\Commands;
 class CastClone extends CastCommand
 {
     protected $command = 'clone';
+
+    public function afterRun(array $args = array(), array $opts = array())
+    {
+        if (!$this->opt('no-checkout', $opts) && !$this->opt('n', $opts) && $this->shouldSerialize($opts)) {
+            $this->cast->getSerializer()->unserializeModel();
+        }
+    }
 }
