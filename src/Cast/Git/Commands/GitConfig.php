@@ -33,13 +33,25 @@ class GitConfig extends GitCommand
         }
 
         if ($this->opt('get', $opts)) {
-            $this->_setReadArguments($command, $opts);
+            $command .= " --get";
+            $command = $this->_setReadArguments($command, $opts);
+            if (!is_string($arg1) || $arg1 === '') {
+                throw new \InvalidArgumentException('git config requires a non-empty name argument');
+            }
+            $command .= " {$arg1}";
         } elseif ($this->opt('get-all', $opts)) {
-            $this->_setReadArguments($command, $opts);
+            $command .= " --get-all";
+            $command = $this->_setReadArguments($command, $opts);
         } elseif ($this->opt('get-regexp', $opts)) {
-            $this->_setReadArguments($command, $opts);
+            $command .= " --get-regexp";
+            $command = $this->_setReadArguments($command, $opts);
+            if (!is_string($arg1) || $arg1 === '') {
+                throw new \InvalidArgumentException('git config --get-regexp requires a non-empty name argument');
+            }
+            $command .= " {$arg1}";
         } elseif ($this->opt('list', $opts)) {
-            $this->_setReadArguments($command, $opts);
+            $command .= " --list";
+            $command = $this->_setReadArguments($command, $opts);
         } elseif ($this->opt('add', $opts)) {
             if (!is_string($arg1) || $arg1 === '') {
                 throw new \InvalidArgumentException('git config --add requires a non-empty name argument');
@@ -97,21 +109,25 @@ class GitConfig extends GitCommand
         return $this->exec($command);
     }
 
-    protected function _setReadArguments(&$command, $opts)
+    protected function _setReadArguments($command, $opts)
     {
         if (!$this->opt('list', $opts)) {
-            $this->_setTypeArgument($command, $opts);
+            $command = $this->_setTypeArgument($command, $opts);
         }
         if ($this->opt('null', $opts)) $command .= " --null";
         elseif ($this->opt('z', $opts)) $command .= " -z";
 
         if ($this->opt('includes', $opts)) $command .= " --includes";
         elseif ($this->opt('no-includes', $opts)) $command .= " --no-includes";
+
+        return $command;
     }
 
-    protected function _setTypeArgument(&$command, $opts)
+    protected function _setTypeArgument($command, $opts)
     {
         if ($this->opt('bool', $opts)) $command .= " --bool";
         elseif ($this->opt('int', $opts)) $command .= " --int"; elseif ($this->opt('bool-or-int', $opts)) $command .= " --bool-or-int";
+
+        return $command;
     }
 }
