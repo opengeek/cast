@@ -65,6 +65,7 @@ abstract class AbstractSerializer implements SerializerInterface
         $classes = array_diff($this->cast->modx->getDescendants('xPDOObject'), $excludes);
         $model = array();
         foreach ($classes as $class) {
+            $criteria = array();
             if (in_array('class_key', array_keys($this->cast->modx->getFields($class)))) {
                 $criteria['class_key'] = $class;
             } else {
@@ -114,23 +115,22 @@ abstract class AbstractSerializer implements SerializerInterface
         if ($path === null) $path = $this->serializedModelPath;
         if (is_readable($path) && is_dir($path)) {
             $class = basename($path);
-            if ($class !== basename($this->serializedModelPath) && !in_array($class, $this->defaultModelExcludes)) {
-                if ('xPDOObject' !== $class && !in_array($class, $processed)) {
-                    $tableName = $this->cast->modx->getTableName($class);
-                    if ($tableName) {
-                        if ($this->cast->modx->exec("TRUNCATE TABLE {$tableName}") !== false) {
-                            $processed[] = $class;
-                        }
+            $excluded = in_array($class, $this->defaultModelExcludes);
+            if ($class !== basename($this->serializedModelPath) && !$excluded && !in_array($class, $processed)) {
+                $tableName = $this->cast->modx->getTableName($class);
+                if ($tableName) {
+                    if ($this->cast->modx->exec("TRUNCATE TABLE {$tableName}") !== false) {
+                        $processed[] = $class;
                     }
                 }
-                $directory = new \DirectoryIterator($path);
-                /** @var \SplFileInfo $file */
-                foreach ($directory as $file) {
-                    if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
-                    $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
-                    if ($file->isFile() && $file->getExtension() === $this->fileExtension) $this->unserialize($relPath);
-                    if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath, $options, $processed);
-                }
+            }
+            $directory = new \DirectoryIterator($path);
+            /** @var \SplFileInfo $file */
+            foreach ($directory as $file) {
+                if (in_array($file->getFilename(), array('.', '..', '.DS_Store'))) continue;
+                $relPath = substr($file->getPathname(), strlen($this->serializedModelPath));
+                if (!$excluded && $file->isFile() && $file->getExtension() === $this->fileExtension) $this->unserialize($relPath);
+                if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath, $options, $processed);
             }
         }
     }
