@@ -50,19 +50,27 @@ abstract class AbstractSerializer implements SerializerInterface
     }
 
     /**
-     * Get the default template defining model serialization.
+     * Get a model serialization definition.
      *
+     * @param null|string $path The path to limit the model data for.
      * @param array $options An array of options for the process.
      *
      * @return array An array of model classes and attributes defining their serialization.
      */
-    public function getModel(array $options = array())
+    public function getModel($path = null, array $options = array())
     {
+        $limitClass = false;
+        if ($path !== null) {
+            $limitClass = basename($path);
+        }
         $excludes = array_merge(
             $this->defaultModelExcludes,
             $this->cast->getOption(Cast::SERIALIZED_MODEL_EXCLUDES, $options, array())
         );
-        $classes = array_diff($this->cast->modx->getDescendants('xPDOObject'), $excludes);
+        $classes = $limitClass !== false && $limitClass !== 'xPDOObject'
+            ? array($limitClass)
+            : $this->cast->modx->getDescendants('xPDOObject');
+        $classes = array_diff($classes, $excludes);
         $model = array();
         foreach ($classes as $class) {
             $criteria = array();
@@ -79,17 +87,23 @@ abstract class AbstractSerializer implements SerializerInterface
     /**
      * Serialize a model to files that can be tracked by Git.
      *
-     * @param null|array $model An optional serialization model.
      * @param null|string $path The path to serialize the model to.
      * @param array $options An array of options for the process.
+     *
+     * @internal param array|null $model An optional serialization model.
      */
-    public function serializeModel($model = null, $path = null, array $options = array())
+    public function serializeModel($path = null, array $options = array())
     {
-        if ($model === null) $model = $this->getModel($options);
-        if ($path === null) $path = $this->serializedModelPath;
+        $modelPath = $this->cast->getOption(Cast::SERIALIZED_MODEL_PATH, $options, '.model/');
+        if ($path === null) {
+            $model = $this->getModel($path, $options);
+        } elseif (strpos($path, $modelPath) === 0) {
+            $model = $this->getModel(substr($path, strlen($modelPath)), $options);
+        }
+
         foreach ($model as $class => $criteria) {
             $this->cast->modx->getCacheManager()->deleteTree(
-                $path . $class,
+                $path . 'xPDOObject/' . $class,
                 array(
                     'deleteTop' => false,
                     'skipDirs' => true,

@@ -23,11 +23,10 @@ interface SerializerInterface
     /**
      * Serialize a model to files that can be tracked by Git.
      *
-     * @param null|array $model An optional serialization model.
      * @param null|string $path The path to serialize the model to.
      * @param array $options An array of options for the process.
      */
-    public function serializeModel($model = null, $path = null, array $options = array());
+    public function serializeModel($path = null, array $options = array());
 
     /**
      * Serialize a model object to file.
