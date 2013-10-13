@@ -59,28 +59,36 @@ abstract class AbstractSerializer implements SerializerInterface
      */
     public function getModel($path = null, array $options = array())
     {
-        $limitClass = false;
+        if (!is_readable($this->serializedModelPath . '.castattributes')) {
+            $model = array();
+            $excludes = array_merge(
+                $this->defaultModelExcludes,
+                $this->cast->getOption(Cast::SERIALIZED_MODEL_EXCLUDES, $options, array())
+            );
+            $classes = array_diff($this->cast->modx->getDescendants('xPDOObject'), $excludes);
+            $criteria = array("1=1");
+            foreach ($classes as $class) {
+                $tableClass = $this->cast->modx->getTableClass($class);
+                if ($tableClass) {
+                    $model[$tableClass] = array(
+                        'criteria' => $criteria,
+                        'attributes' => array()
+                    );
+                }
+            }
+            $this->cast->modx->getCacheManager()->writeFile($this->serializedModelPath . '.castattributes', "<?php return " . var_export($model, true) . ";\n");
+        } else {
+            $model = include $this->serializedModelPath . '.castattributes';
+        }
         if ($path !== null) {
             $limitClass = basename($path);
-        }
-        $excludes = array_merge(
-            $this->defaultModelExcludes,
-            $this->cast->getOption(Cast::SERIALIZED_MODEL_EXCLUDES, $options, array())
-        );
-        $classes = $limitClass !== false && $limitClass !== 'xPDOObject'
-            ? array_merge(array($limitClass), $this->cast->modx->getDescendants($limitClass))
-            : $this->cast->modx->getDescendants('xPDOObject');
-        $classes = array_unique($classes);
-        $classes = array_diff($classes, $excludes);
-        $model = array();
-        foreach ($classes as $class) {
-            $criteria = array();
-            if (in_array('class_key', array_keys($this->cast->modx->getFields($class)))) {
-                $criteria['class_key'] = $class;
-            } else {
-                $criteria[] = "1=1";
+            $limitDescendants = $this->cast->modx->getDescendants($limitClass);
+            $limited = array_intersect(array_merge(array($limitClass), $limitDescendants), array_keys($model));
+            $limitedModel = array();
+            foreach ($limited as $class) {
+                $limitedModel[$class] = $model[$class];
             }
-            $model[$class] = $criteria;
+            $model = $limitedModel;
         }
         return $model;
     }
@@ -95,6 +103,7 @@ abstract class AbstractSerializer implements SerializerInterface
      */
     public function serializeModel($path = null, array $options = array())
     {
+        $model = array();
         $modelPath = $this->cast->getOption(Cast::SERIALIZED_MODEL_PATH, $options, '.model/');
         if ($path === null) {
             $model = $this->getModel($path, $options);
@@ -102,7 +111,7 @@ abstract class AbstractSerializer implements SerializerInterface
             $model = $this->getModel(substr($path, strlen($modelPath)), $options);
         }
 
-        foreach ($model as $class => $criteria) {
+        foreach ($model as $class => $data) {
             $this->cast->modx->getCacheManager()->deleteTree(
                 $path . 'xPDOObject/' . $class,
                 array(
@@ -111,9 +120,9 @@ abstract class AbstractSerializer implements SerializerInterface
                     'extensions' => array(".{$this->fileExtension}")
                 )
             );
-            $iterator = $this->cast->modx->getIterator($class, $criteria, false);
+            $iterator = $this->cast->modx->getIterator($class, $data['criteria'], false);
             foreach ($iterator as $object) {
-                $this->serialize($object, $options);
+                $this->serialize($object, array_merge($options, $data['attributes']));
             }
         }
     }
@@ -130,12 +139,19 @@ abstract class AbstractSerializer implements SerializerInterface
         if ($path === null) $path = $this->serializedModelPath;
         if (is_readable($path) && is_dir($path)) {
             $class = basename($path);
-            $excluded = in_array($class, $this->defaultModelExcludes);
-            if ($class !== basename($this->serializedModelPath) && !$excluded && !in_array($class, $processed)) {
+            $model = $this->getModel();
+            $excluded = !isset($model[$class]);
+            if ($class !== basename($this->serializedModelPath) && !in_array($class, $processed) && !$excluded) {
                 $tableName = $this->cast->modx->getTableName($class);
                 if ($tableName) {
-                    if ($this->cast->modx->exec("TRUNCATE TABLE {$tableName}") !== false) {
-                        $processed[] = $class;
+                    if (isset($model[$class]['criteria']) && !empty($model[$class]['criteria']) && $model[$class]['criteria'] !== array("1=1")) {
+                        if (false !== $this->cast->modx->removeCollection($class, $model[$class]['criteria'])) {
+                            $processed[] = $class;
+                        }
+                    } else {
+                        if ($this->cast->modx->exec("TRUNCATE TABLE {$tableName}") !== false) {
+                            $processed[] = $class;
+                        }
                     }
                 }
             }

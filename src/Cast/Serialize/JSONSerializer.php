@@ -29,7 +29,7 @@ class JSONSerializer extends AbstractSerializer
         $path = $this->serializedModelPath;
         $segments = array();
         $segments[] = 'xPDOObject';
-        $segments[] = $object->_class;
+        $segments[] = $this->cast->modx->getTableClass($object->_class);
         switch ($object->_class) {
             case 'modResource':
 //                break;
