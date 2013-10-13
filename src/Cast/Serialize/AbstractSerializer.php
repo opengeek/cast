@@ -68,8 +68,9 @@ abstract class AbstractSerializer implements SerializerInterface
             $this->cast->getOption(Cast::SERIALIZED_MODEL_EXCLUDES, $options, array())
         );
         $classes = $limitClass !== false && $limitClass !== 'xPDOObject'
-            ? array($limitClass)
+            ? array_merge(array($limitClass), $this->cast->modx->getDescendants($limitClass))
             : $this->cast->modx->getDescendants('xPDOObject');
+        $classes = array_unique($classes);
         $classes = array_diff($classes, $excludes);
         $model = array();
         foreach ($classes as $class) {
