@@ -34,10 +34,10 @@ class GitAdd extends GitCommand
 
         $command = $this->command;
         if ($this->opt('interactive', $opts) || $this->opt('i', $opts) || $this->opt('patch', $opts) || $this->opt('p', $opts)) {
-            throw new \RuntimeException("git interactive patch selection not supported by Cast");
+            throw new GitCommandException($this, "git interactive patch selection not supported by Cast");
         }
         if ($this->opt('edit', $opts) || $this->opt('e', $opts)) {
-            throw new \RuntimeException("git interactive patch editing not supported by Cast");
+            throw new GitCommandException($this, "git interactive patch editing not supported by Cast");
         }
         if ($this->opt('dry-run', $opts) || $this->opt('n', $opts)) {
             $command .= ' --dry-run';

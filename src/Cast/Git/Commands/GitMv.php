@@ -20,7 +20,7 @@ class GitMv extends GitCommand
         $destination = array_shift($args);
 
         if ((!is_array($source) || !is_string($source)) || $source === '' || !is_string($destination) || $destination === '') {
-            throw new \InvalidArgumentException("git mv requires at least one source and a destination argument");
+            throw new GitCommandException($this, "git mv requires at least one source and a destination argument");
         }
 
         $command = $this->command;

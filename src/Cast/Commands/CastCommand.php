@@ -11,6 +11,7 @@
 namespace Cast\Commands;
 
 use Cast\Cast;
+use Cast\CastException;
 use Cast\Response\CastResponse;
 
 /**
@@ -46,15 +47,19 @@ abstract class CastCommand
      * @param array $args An array of arguments for the command.
      * @param array $opts An array of options for the command.
      *
-     * @throws \RuntimeException If an unrecoverable error occurs running the GitCommand.
+     * @throws CastCommandException If an unrecoverable error occurs running the GitCommand.
      * @return CastResponse The result of the GitCommand wrapped in a CastResponse object.
      */
     public function run(array $args = array(), array $opts = array())
     {
         $this->response = new CastResponse();
-        $this->beforeRun($args, $opts);
-        $this->response->fromResult($this->cast->git->{$this->command}->run($args, $opts));
-        $this->afterRun($args, $opts);
+        try {
+            $this->beforeRun($args, $opts);
+            $this->response->fromResult($this->cast->git->{$this->command}->run($args, $opts));
+            $this->afterRun($args, $opts);
+        } catch (CastException $e) {
+            throw new CastCommandException($this, "error running cast command {this->command}", $e->getCode(), $e);
+        }
         return $this->response;
     }
 

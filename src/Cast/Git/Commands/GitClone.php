@@ -22,7 +22,7 @@ class GitClone extends GitCommand
         $directory = array_shift($args);
 
         if ($this->git->isInitialized()) {
-            throw new \RuntimeException("Cannot clone {$repository} into an existing repository at {$directory}");
+            throw new GitCommandException($this, "Cannot clone {$repository} into an existing repository at {$directory}");
         }
 
         $command = $this->command;
@@ -43,7 +43,7 @@ class GitClone extends GitCommand
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {
-                    throw new \RuntimeException("Cannot clone a Git repository into {$path}; one already exists at that location.");
+                    throw new GitCommandException($this, "Cannot clone a Git repository into {$path}; one already exists at that location.");
                 }
                 $directory = $path;
             } else {
@@ -55,7 +55,7 @@ class GitClone extends GitCommand
         $response = $this->git->exec($command);
 
         if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
+            throw new GitCommandException($this, $response[2]);
         }
         $this->git->setPath($directory);
         $this->git->setInitialized();

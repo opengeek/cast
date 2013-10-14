@@ -21,7 +21,7 @@ class GitInit extends GitCommand
         $directory = array_shift($args);
 
         if ($this->git->isInitialized()) {
-            throw new \RuntimeException("Cannot re-initialize an existing repository at {$directory}");
+            throw new GitCommandException($this, "Cannot re-initialize an existing repository at {$directory}");
         }
 
         $command = $this->command;
@@ -31,7 +31,7 @@ class GitInit extends GitCommand
         if ($directory === null) {
             if (($path = $this->git->getPath()) !== null) {
                 if (Git::isValidRepositoryPath($path)) {
-                    throw new \RuntimeException("Cannot initialize a Git repository at {$path}; one already exists at that location.");
+                    throw new GitCommandException($this, "Cannot initialize a Git repository at {$path}; one already exists at that location.");
                 }
                 $directory = $path;
             } else {
@@ -43,7 +43,7 @@ class GitInit extends GitCommand
         $response = $this->git->exec($command);
 
         if ($response[0] !== 0 && !empty($response[2])) {
-            throw new \RuntimeException($response[2]);
+            throw new GitCommandException($this, $response[2]);
         }
         $this->git->setPath($directory);
         $this->git->setInitialized();

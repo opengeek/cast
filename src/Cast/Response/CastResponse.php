@@ -10,6 +10,8 @@
 
 namespace Cast\Response;
 
+use Cast\CastException;
+
 /**
  * Represents a response returned from a CastCommand being run().
  *
@@ -163,16 +165,16 @@ class CastResponse
      *
      * @param array $result An array result from a GitCommand::run() method call.
      *
-     * @throws \RuntimeException If the result is not an array with 5 elements
+     * @throws CastException If the result is not an array with 5 elements
      * or the response has already been initialized with a GitCommand::run() result.
      */
     public function fromResult($result)
     {
         if ($this->_initialized) {
-            throw new \RuntimeException("this response has already been initialized from a GitCommand::run() method");
+            throw new CastException("this response has already been initialized from a GitCommand::run() method");
         }
         if (!is_array($result) || count($result) !== 5) {
-            throw new \RuntimeException("invalid result provided to CastResponse");
+            throw new CastException("invalid result provided to CastResponse");
         }
         $this->setResult($result[0]);
         $this->addOutput($result[1]);

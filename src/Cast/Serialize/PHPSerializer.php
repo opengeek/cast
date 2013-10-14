@@ -30,23 +30,27 @@ class PHPSerializer extends AbstractSerializer
         $segments = array();
         $segments[] = 'xPDOObject';
         $segments[] = $this->cast->modx->getTableClass($object->_class);
-        switch ($object->_class) {
-            case 'modResource':
-//                break;
-            case 'modCategory':
-//                break;
-            default:
-                $criteria = $pk = $object->getPrimaryKey();
-                if (!is_array($pk)) $pk = array($pk);
-                $segments[] = implode('-', $pk) . ".{$this->fileExtension}";
-        }
+        $criteria = $pk = $object->getPrimaryKey();
+        if (!is_array($pk)) $pk = array($pk);
+        $segments[] = implode('-', $pk) . ".{$this->fileExtension}";
         $data = array(
             'class'    => $object->_class,
             'criteria' => $criteria,
             'object'   => $object->toArray('', true, false, true)
         );
         $path .= str_replace('\\', '/', implode('/', $segments));
-        return $this->cast->modx->getCacheManager()->writeFile($path, "<?php return " . var_export($data, true) . ";\n");
+        $beforeSerialize = isset($options['before_serialize_callback']) ? $options['before_serialize_callback'] : null;
+        if ($beforeSerialize instanceof \Closure) {
+            $beforeSerialize($this, $object, $data, $segments, $path, $options);
+            unset($beforeSerialize);
+        }
+        $written = $this->cast->modx->getCacheManager()->writeFile($path, "<?php return " . var_export($data, true) . ";\n");
+        $afterSerialize = isset($options['after_serialize_callback']) ? $options['after_serialize_callback'] : null;
+        if ($afterSerialize instanceof \Closure) {
+            $afterSerialize($this, $object, $options);
+            unset($afterSerialize);
+        }
+        return $written;
     }
 
     /**
@@ -55,7 +59,7 @@ class PHPSerializer extends AbstractSerializer
      * @param string $path The path of the file to unserialize the object from.
      * @param array $options An array of options for the process.
      *
-     * @throws \RuntimeException If unserialization fails to retrieve valid data.
+     * @throws SerializerException If unserialization fails to retrieve valid data.
      * @return bool TRUE if the object is saved to the database, FALSE if save fails.
      */
     public function unserialize($path, array $options = array())
@@ -64,6 +68,11 @@ class PHPSerializer extends AbstractSerializer
         if (is_readable($absPath)) {
             $data = include $absPath;
             if (is_array($data) && isset($data['class']) && isset($data['object'])) {
+                $beforeUnserialize = isset($options['before_unserialize_callback']) ? $options['before_unserialize_callback'] : null;
+                if ($beforeUnserialize instanceof \Closure) {
+                    $beforeUnserialize($this, $path, $data, $options);
+                    unset($beforeUnserialize);
+                }
                 /** @var \xPDOObject $object */
                 if (($object = $this->cast->modx->getObject($data['class'], $data['criteria'])) === null) {
                     $object = $this->cast->modx->newObject($data['class']);
@@ -71,10 +80,16 @@ class PHPSerializer extends AbstractSerializer
                 } else {
                     $object->fromArray($data['object'], '', true, true);
                 }
-                return $object->save();
+                $saved = $object->save();
+                $afterUnserialize = isset($options['after_unserialize_callback']) ? $options['after_unserialize_callback'] : null;
+                if ($afterUnserialize instanceof \Closure) {
+                    $afterUnserialize($this, $path, $data, $object, $options);
+                    unset($afterUnserialize);
+                }
+                return $saved;
             }
-            throw new \RuntimeException("Could not unserialize {$path} to the MODX database: no content");
+            throw new SerializerException($this, "Could not unserialize {$path} to the MODX database: no content");
         }
-        throw new \RuntimeException("Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
+        throw new SerializerException($this, "Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
     }
 }

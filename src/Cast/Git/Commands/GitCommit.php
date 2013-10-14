@@ -37,7 +37,7 @@ class GitCommit extends GitCommand
         if ($this->opt('all', $opts) || $this->opt('a', $opts)) {
             $command .= ' --all';
         } elseif ($this->opt('interactive', $opts) || $this->opt('patch', $opts) || $this->opt('p', $opts)) {
-            throw new \RuntimeException("git interactive patch selection not supported by Cast");
+            throw new GitCommandException($this, "git interactive patch selection not supported by Cast");
         }
         if ($this->opt('verbose', $opts) || $this->opt('v', $opts)) $command .= ' --verbose';
         if ($this->opt('quiet', $opts) || $this->opt('q', $opts)) $command .= ' --quiet';
@@ -45,7 +45,7 @@ class GitCommit extends GitCommand
             $command .= " -C {$commit}";
         }
         if (($commit = $this->opt('reedit-message', $opts)) || ($commit = $this->opt('c', $opts))) {
-            throw new \RuntimeException('git commit -c {commit} not supported by Cast');
+            throw new GitCommandException($this, 'git commit -c {commit} not supported by Cast');
         }
         if (($commit = $this->opt('fixup', $opts))) {
             $command .= " --fixup={$commit}";
@@ -65,16 +65,16 @@ class GitCommit extends GitCommand
         } elseif ($this->opt('allow-empty-message', $opts)) {
             $command .= " --allow-empty-message";
         } else {
-            throw new \RuntimeException("git commit in Cast requires --file={file} or --message={message} options");
+            throw new GitCommandException($this, "git commit in Cast requires --file={file} or --message={message} options");
         }
         if ($this->opt('edit', $opts) || $this->opt('e', $opts)) {
-            throw new \RuntimeException("git commit --edit not supported in Cast");
+            throw new GitCommandException($this, "git commit --edit not supported in Cast");
         }
         if ($this->opt('amend', $opts)) {
             if (!$this->opt('no-edit', $opts) && !$this->opt('message', $opts) && !$this->opt('m', $opts) &&
                 !$this->opt('file', $opts) && !$this->opt('F', $opts) && !$this->opt('allow-empty-message', $opts)
             ) {
-                throw new \RuntimeException("git commit --amend requires -m, -F, --allow-empty-message or --no-edit in Cast");
+                throw new GitCommandException($this, "git commit --amend requires -m, -F, --allow-empty-message or --no-edit in Cast");
             }
         }
         if (($author = $this->opt('author', $opts))) {

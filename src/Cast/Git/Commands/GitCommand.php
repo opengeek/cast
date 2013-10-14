@@ -11,6 +11,7 @@
 namespace Cast\Git\Commands;
 
 use Cast\Git\Git;
+use Cast\Git\GitException;
 
 /**
  * An abstract representation of a Git command.
@@ -26,28 +27,34 @@ abstract class GitCommand
     protected $command;
 
     /**
-     * Run the Git command.
+     * Run the Git command represented by this class.
      *
      * @param array $args An array of arguments for the command.
+     * @param array $opts An array of options for the command.
      *
-     * @param array $opts
-     *
-     * @return mixed The results of the command.
+     * @throws GitCommandException If an error occurs running the command.
+     * @return array The results of the command.
      */
     abstract public function run(array $args = array(), array $opts = array());
 
+    /**
+     * Construct a new GitCommand instance.
+     *
+     * @param Git &$git A reference to a Git repository instance.
+     */
     public function __construct(&$git)
     {
         $this->git = & $git;
     }
 
     /**
+     * Get an option value from an array of parsed options.
      *
-     * @param $key
-     * @param $opts
-     * @param bool $default
+     * @param string $key The option key to.
+     * @param array $opts An array of options to lookup the key in.
+     * @param bool $default The default value to return if the key is not found.
      *
-     * @return bool|string|mixed
+     * @return bool|string|mixed The option value, or the default if not found.
      */
     public function opt($key, $opts, $default = false)
     {
@@ -63,11 +70,15 @@ abstract class GitCommand
      *
      * @param string $command The complete Git CLI command string to execute.
      *
-     * @throws \RuntimeException If an error occurs executing the command.
-     * @return array The stdout or stderr response from the Git command as appropriate.
+     * @throws GitCommandException If an error occurs executing the git command.
+     * @return array The formatted response from the Git command.
      */
     public function exec($command)
     {
-        return $this->git->exec($command);
+        try {
+            return $this->git->exec($command);
+        } catch (GitException $e) {
+            throw new GitCommandException($this, $e->getMessage(), $e->getCode(), $e);
+        }
     }
 }

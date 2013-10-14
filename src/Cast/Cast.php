@@ -118,7 +118,7 @@ class Cast
      * @param string $name The command to run.
      * @param array $arguments The arguments to pass to the command.
      *
-     * @throws \BadMethodCallException If no CastCommand class exists for the specified name.
+     * @throws CastException If no CastCommand class exists for the specified name.
      * @return mixed The results of the command.
      */
     public function __call($name, $arguments)
@@ -129,7 +129,7 @@ class Cast
                 $this->commands[$name] = new $commandClass($this);
                 return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
             }
-            throw new \BadMethodCallException(sprintf('The Cast Command class %s does not exist', $commandClass));
+            throw new CastException(sprintf('The Cast Command class %s does not exist', $commandClass));
         }
         return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
     }
@@ -139,7 +139,7 @@ class Cast
      *
      * @param string $name The command to load.
      *
-     * @throws \InvalidArgumentException If no CastCommand class exists for the specified name.
+     * @throws CastException If no CastCommand class exists for the specified name.
      * @return CastCommand The CastCommand class for the specified command.
      */
     public function __get($name)
@@ -150,7 +150,7 @@ class Cast
                 $this->commands[$name] = new $commandClass($this);
                 return $this->commands[$name];
             }
-            throw new \InvalidArgumentException(sprintf('The Cast Command class %s does not exist', $commandClass));
+            throw new CastException(sprintf('The Cast Command class %s does not exist', $commandClass));
         }
         return $this->commands[$name];
     }

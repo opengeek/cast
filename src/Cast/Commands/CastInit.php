@@ -25,10 +25,10 @@ class CastInit extends CastCommand
             $this->cast->git->setPath($directory);
         }
 
-        if ($this->cast->git->isInitialized()) throw new \RuntimeException('Cannot reinitialize an existing git repository at ' . $directory);
+        if ($this->cast->git->isInitialized()) throw new CastCommandException($this, 'Cannot reinitialize an existing git repository at ' . $directory);
 
         if ($this->cast->git->getOption('core.bare', null, false)) {
-            throw new \RuntimeException('Cast does not currently support bare repositories');
+            throw new CastCommandException($this, 'Cast does not currently support bare repositories');
         }
 
         if ($this->shouldSerialize($opts)) {

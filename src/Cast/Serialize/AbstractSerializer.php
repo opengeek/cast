@@ -52,14 +52,17 @@ abstract class AbstractSerializer implements SerializerInterface
     /**
      * Get a model serialization definition.
      *
+     * @todo Implement support for model templates
+     *
      * @param null|string $path The path to limit the model data for.
      * @param array $options An array of options for the process.
      *
+     * @throws SerializerException If a valid serialization model cannot be retrieved.
      * @return array An array of model classes and attributes defining their serialization.
      */
     public function getModel($path = null, array $options = array())
     {
-        if (!is_readable($this->serializedModelPath . '.castattributes')) {
+        if (!file_exists($this->serializedModelPath . '.castattributes')) {
             $model = array();
             $excludes = array_merge(
                 $this->defaultModelExcludes,
@@ -78,7 +81,13 @@ abstract class AbstractSerializer implements SerializerInterface
             }
             $this->cast->modx->getCacheManager()->writeFile($this->serializedModelPath . '.castattributes', "<?php return " . var_export($model, true) . ";\n");
         } else {
+            if (!is_readable($this->serializedModelPath . '.castattributes')) {
+                throw new SerializerException($this, "{$this->serializedModelPath}.castattributes exists but is not readable");
+            }
             $model = include $this->serializedModelPath . '.castattributes';
+            if (!is_array($model)) {
+                throw new SerializerException($this, "{$this->serializedModelPath}.castattributes contains an invalid model");
+            }
         }
         if ($path !== null) {
             $limitClass = basename($path);
@@ -112,6 +121,11 @@ abstract class AbstractSerializer implements SerializerInterface
         }
 
         foreach ($model as $class => $data) {
+            $beforeClassSerialize = isset($attributes['before_class_serialize_callback']) ? $attributes['before_class_serialize_callback'] : null;
+            if ($beforeClassSerialize instanceof \Closure) {
+                $beforeClassSerialize($this, $data);
+                unset($beforeClassSerialize);
+            }
             $this->cast->modx->getCacheManager()->deleteTree(
                 $path . 'xPDOObject/' . $class,
                 array(
@@ -123,6 +137,11 @@ abstract class AbstractSerializer implements SerializerInterface
             $iterator = $this->cast->modx->getIterator($class, $data['criteria'], false);
             foreach ($iterator as $object) {
                 $this->serialize($object, array_merge($options, $data['attributes']));
+            }
+            $afterClassSerialize = isset($attributes['after_class_serialize_callback']) ? $attributes['after_class_serialize_callback'] : null;
+            if ($afterClassSerialize instanceof \Closure) {
+                $afterClassSerialize($this, $data);
+                unset($afterClassSerialize);
             }
         }
     }
@@ -142,6 +161,12 @@ abstract class AbstractSerializer implements SerializerInterface
             $model = $this->getModel();
             $excluded = !isset($model[$class]);
             if ($class !== basename($this->serializedModelPath) && !in_array($class, $processed) && !$excluded) {
+                $attributes = isset($model[$class]['attributes']) ? $model[$class]['attributes'] : array();
+                $beforeClassUnserialize = isset($attributes['before_class_unserialize_callback']) ? $attributes['before_class_unserialize_callback'] : null;
+                if ($beforeClassUnserialize instanceof \Closure) {
+                    $beforeClassUnserialize($this, $model[$class], $processed);
+                    unset($beforeClassUnserialize);
+                }
                 $tableName = $this->cast->modx->getTableName($class);
                 if ($tableName) {
                     if (isset($model[$class]['criteria']) && !empty($model[$class]['criteria']) && $model[$class]['criteria'] !== array("1=1")) {
@@ -163,6 +188,11 @@ abstract class AbstractSerializer implements SerializerInterface
                 if (!$excluded && $file->isFile() && $file->getExtension() === $this->fileExtension) $this->unserialize($relPath);
                 if ($file->isDir()) $this->unserializeModel($this->serializedModelPath . $relPath, $options, $processed);
             }
+            $afterClassUnserialize = isset($attributes['after_class_unserialize_callback']) ? $attributes['after_class_unserialize_callback'] : null;
+            if ($afterClassUnserialize instanceof \Closure) {
+                $afterClassUnserialize($this, $model[$class], $processed);
+                unset($afterClassUnserialize);
+            }
         }
     }
 
@@ -182,7 +212,7 @@ abstract class AbstractSerializer implements SerializerInterface
      * @param string $path The path of the file to unserialize the object from.
      * @param array $options An array of options for the process.
      *
-     * @throws \RuntimeException If unserialization fails to retrieve valid data.
+     * @throws SerializerException If unserialization fails to retrieve valid data.
      * @return bool TRUE if the object is saved to the database, FALSE if save fails.
      */
     abstract public function unserialize($path, array $options = array());

@@ -53,7 +53,7 @@ interface SerializerInterface
      * @param string $path The path of the file to unserialize the object from.
      * @param array $options An array of options for the process.
      *
-     * @throws \RuntimeException If unserialization fails to retrieve valid data.
+     * @throws SerializerException If unserialization fails to retrieve valid data.
      * @return bool TRUE if the object is saved to the database, FALSE if save fails.
      */
     public function unserialize($path, array $options = array());

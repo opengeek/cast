@@ -21,7 +21,7 @@ class GitRm extends GitCommand
         $pathSpec = array_shift($args);
 
         if ($pathSpec === null || (is_string($pathSpec) && $pathSpec === '') || (!is_string($pathSpec) && !is_array($pathSpec))) {
-            throw new \InvalidArgumentException("git rm requires at least one file argument");
+            throw new GitCommandException($this, "git rm requires at least one file argument");
         }
         if (!is_array($pathSpec)) {
             $pathSpec = array($pathSpec);

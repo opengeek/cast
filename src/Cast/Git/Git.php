@@ -31,6 +31,13 @@ class Git
     /** @var array A cached array of config options. */
     protected $options = array();
 
+    /**
+     * Test if the given path is a valid Git repository
+     *
+     * @param string $path A valid stream path.
+     *
+     * @return bool true if the path is to a valid Git repository; false otherwise.
+     */
     public static function isValidRepositoryPath($path)
     {
         $valid = false;
@@ -166,11 +173,11 @@ class Git
                 }
                 $return = proc_close($process);
             } catch (\Exception $e) {
-                throw new \RuntimeException($e->getMessage());
+                throw new GitException($this, $e->getMessage(), $e->getCode(), $e);
             }
             return array($return, $this->stripEscapeSequences($output), $this->stripEscapeSequences($errors), $command, $options);
         }
-        throw new \RuntimeException(sprintf('Could not execute command git %s', $command));
+        throw new GitException($this, sprintf('Could not execute command git %s', $command));
     }
 
     /**
@@ -200,12 +207,12 @@ class Git
      *
      * @param string $path The path to the Git repository.
      *
-     * @throws \InvalidArgumentException If the path is not a valid Git repository path.
+     * @throws GitException If the path is not a valid Git repository path.
      */
     public function setPath($path)
     {
         if (!Git::isValidRepositoryPath($path)) {
-            throw new \InvalidArgumentException("Attempt to set the repository path to an invalid Git repository (path={$path}).");
+            throw new GitException($this, "Attempt to set the repository path to an invalid Git repository (path={$path}).");
         }
         $this->path = rtrim($path, '/');
     }
@@ -232,13 +239,13 @@ class Git
     /**
      * Determines if this instance references a bare Git repository.
      *
-     * @throws \BadMethodCallException If this instance is not initialized with a repository.
+     * @throws GitException If this instance is not initialized with a repository.
      * @return bool true if this instance references a bare Git repository.
      */
     public function isBare()
     {
         if (!$this->isInitialized()) {
-            throw new \BadMethodCallException(sprintf("%s requires an initialized Git repository to be associated", __METHOD__));
+            throw new GitException($this, sprintf("%s requires an initialized Git repository to be associated", __METHOD__));
         }
         return $this->bare;
     }
@@ -280,7 +287,7 @@ class Git
      * @param string $name The Git command name.
      * @param array $arguments An array of arguments for the command.
      *
-     * @throws \BadMethodCallException If no GitCommand class exists for the name.
+     * @throws GitException If no GitCommand class exists for the name.
      * @return mixed The results of the GitCommand.
      */
     public function __call($name, $arguments)
@@ -291,7 +298,7 @@ class Git
                 $this->commands[$name] = new $commandClass($this);
                 return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
             }
-            throw new \BadMethodCallException(sprintf('The Git Command class %s does not exist', ucfirst($name)));
+            throw new GitException($this, sprintf('The Git Command class %s does not exist', ucfirst($name)));
         }
         return call_user_func_array(array($this->commands[$name], 'run'), array($arguments));
     }
@@ -301,7 +308,7 @@ class Git
      *
      * @param string $name The Git command name.
      *
-     * @throws \InvalidArgumentException If no GitCommand class exists for the name.
+     * @throws GitException If no GitCommand class exists for the name.
      * @return mixed The results of the GitCommand
      */
     public function __get($name)
@@ -312,7 +319,7 @@ class Git
                 $this->commands[$name] = new $commandClass($this);
                 return $this->commands[$name];
             }
-            throw new \InvalidArgumentException(sprintf('The Git Command class %s does not exist', ucfirst($name)));
+            throw new GitException($this, sprintf('The Git Command class %s does not exist', ucfirst($name)));
         }
         return $this->commands[$name];
     }

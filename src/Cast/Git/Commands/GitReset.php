@@ -35,7 +35,7 @@ class GitReset extends GitCommand
 
         $command = $this->command;
         if ($this->opt('patch', $opts) || $this->opt('p', $opts)) {
-            throw new \RuntimeException("git interactive patch mode not supported in Cast");
+            throw new GitCommandException($this, "git interactive patch mode not supported in Cast");
         }
         if ($this->opt('q', $opts)) $command .= ' --q';
         elseif ($this->opt('quiet', $opts)) $command .= ' --quiet';

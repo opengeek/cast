@@ -23,7 +23,7 @@ class GitMerge extends GitCommand
             $command .= " --abort";
         } else {
             if ($this->opt('edit', $opts) || $this->opt('e', $opts)) {
-                throw new \RuntimeException("git merge --edit not supported in Cast");
+                throw new GitCommandException($this, "git merge --edit not supported in Cast");
             } elseif ($this->opt('no-edit', $opts)) $command .= ' --no-edit';
             if ($this->opt('commit', $opts)) $command .= ' --commit';
             elseif ($this->opt('no-commit', $opts)) $command .= ' --no-commit';

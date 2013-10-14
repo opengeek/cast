@@ -30,23 +30,27 @@ class JSONSerializer extends AbstractSerializer
         $segments = array();
         $segments[] = 'xPDOObject';
         $segments[] = $this->cast->modx->getTableClass($object->_class);
-        switch ($object->_class) {
-            case 'modResource':
-//                break;
-            case 'modCategory':
-//                break;
-            default:
-                $criteria = $pk = $object->getPrimaryKey();
-                if (!is_array($pk)) $pk = array($pk);
-                $segments[] = implode('-', $pk) . ".{$this->fileExtension}";
-        }
+        $criteria = $pk = $object->getPrimaryKey();
+        if (!is_array($pk)) $pk = array($pk);
+        $segments[] = implode('-', $pk) . ".{$this->fileExtension}";
         $data = array(
             'class'    => $object->_class,
             'criteria' => $criteria,
             'object'   => $object->toArray('', true, false, true)
         );
         $path .= str_replace('\\', '/', implode('/', $segments));
-        return $this->cast->modx->getCacheManager()->writeFile($path, json_encode($data, version_compare(phpversion(), '5.4.0', '>=') ? JSON_PRETTY_PRINT : 0));
+        $beforeSerialize = isset($options['before_serialize_callback']) ? $options['before_serialize_callback'] : null;
+        if ($beforeSerialize instanceof \Closure) {
+            $beforeSerialize($this, $object, $data, $segments, $path, $options);
+            unset($beforeSerialize);
+        }
+        $written = $this->cast->modx->getCacheManager()->writeFile($path, json_encode($data, version_compare(phpversion(), '5.4.0', '>=') ? JSON_PRETTY_PRINT : 0));
+        $afterSerialize = isset($options['after_serialize_callback']) ? $options['after_serialize_callback'] : null;
+        if ($afterSerialize instanceof \Closure) {
+            $afterSerialize($this, $object, $options);
+            unset($afterSerialize);
+        }
+        return $written;
     }
 
     /**
@@ -55,7 +59,7 @@ class JSONSerializer extends AbstractSerializer
      * @param string $path The path of the file to unserialize the object from.
      * @param array $options An array of options for the process.
      *
-     * @throws \RuntimeException If unserialization fails to retrieve valid data.
+     * @throws SerializerException If unserialization fails to retrieve valid data.
      * @return bool TRUE if the object is saved to the database, FALSE if save fails.
      */
     public function unserialize($path, array $options = array())
@@ -64,6 +68,11 @@ class JSONSerializer extends AbstractSerializer
             $data = file_get_contents($this->serializedModelPath . $path);
             if (is_string($data)) {
                 $payload = json_decode($data, true);
+                $beforeUnserialize = isset($options['before_unserialize_callback']) ? $options['before_unserialize_callback'] : null;
+                if ($beforeUnserialize instanceof \Closure) {
+                    $beforeUnserialize($this, $path, $payload, $options);
+                    unset($beforeUnserialize);
+                }
                 /** @var \xPDOObject $object */
                 if (($object = $this->cast->modx->getObject($payload['class'], $payload['criteria'])) === null) {
                     $object = $this->cast->modx->newObject($payload['class']);
@@ -71,10 +80,16 @@ class JSONSerializer extends AbstractSerializer
                 } else {
                     $object->fromArray($payload['object'], '', true, true);
                 }
-                return $object->save();
+                $saved = $object->save();
+                $afterUnserialize = isset($options['after_unserialize_callback']) ? $options['after_unserialize_callback'] : null;
+                if ($afterUnserialize instanceof \Closure) {
+                    $afterUnserialize($this, $path, $data, $object, $options);
+                    unset($afterUnserialize);
+                }
+                return $saved;
             }
-            throw new \RuntimeException("Could not unserialize {$path} to the MODX database: no content");
+            throw new SerializerException($this, "Could not unserialize {$path} to the MODX database: no content");
         }
-        throw new \RuntimeException("Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
+        throw new SerializerException($this, "Could not unserialize {$path} to the MODX database: file is not readable or does not exist");
     }
 }

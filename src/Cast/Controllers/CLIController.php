@@ -12,13 +12,19 @@ namespace Cast\Controllers;
 
 
 use Cast\Cast;
+use Cast\CastException;
 
 class CLIController implements ControllerInterface
 {
+    /** @var Cast A reference to a Cast instance. */
     protected $cast;
+    /** @var string The name of the script that was called. */
     protected $script;
+    /** @var string The current or most recently executed Cast command string. */
     protected $command;
+    /** @var array The parsed arguments provided to the request. */
     protected $arguments = array();
+    /** @var array The parsed options provided to the request. */
     protected $options = array();
 
     /**
@@ -27,15 +33,20 @@ class CLIController implements ControllerInterface
      * @param Cast &$cast A reference to a valid Cast instance.
      * @param array $args An array of arguments for the request.
      *
+     * @throws CLIControllerException If an error occurs handling the request.
      * @return ControllerResponse A Cast ControllerResponse instance.
      */
     public function handle(Cast &$cast, array $args)
     {
         $this->cast = &$cast;
-        $this->parseArgs($args);
-        $results = $this->cast->{$this->command}->run($this->arguments, $this->options);
-        $response = new ControllerResponse($this, $results);
-        return $response;
+        try {
+            $this->parseArgs($args);
+            $results = $this->cast->{$this->command}->run($this->arguments, $this->options);
+            $response = new ControllerResponse($this, $results);
+            return $response;
+        } catch (\Exception $e) {
+            throw new CLIControllerException($this, "cast fatal: {$e->getMessage()}", $e->getCode(), $e);
+        }
     }
 
     /**
