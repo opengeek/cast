@@ -42,7 +42,7 @@ if (function_exists('ini_set')) {
 }
 
 try {
-    require_once __DIR__ . '/../src/autoload.php';
+    require_once __DIR__ . '/../src/bootstrap.php';
 
     $modxReady = is_readable('config.core.php');
 
