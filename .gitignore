@@ -14,3 +14,5 @@ nbproject/
 # ignore config files
 config.core.php
 
+# ignore built archive
+cast.phar

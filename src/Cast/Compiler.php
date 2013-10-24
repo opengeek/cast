@@ -165,6 +165,7 @@ class Compiler
     {
         $stub = <<<'EOF'
 #!/usr/bin/env php
+<?php
 /**
  * This file is part of the cast package.
  *
