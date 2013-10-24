@@ -45,7 +45,9 @@ class CLIController implements ControllerInterface
             $response = new ControllerResponse($this, $results);
             return $response;
         } catch (\Exception $e) {
-            throw new CLIControllerException($this, "cast fatal: {$e->getMessage()}", $e->getCode(), $e);
+            $message = $e->getMessage();
+            $code = $e->getCode();
+            throw new CLIControllerException($this, "cast fatal: {$message}", $code, $e);
         }
     }
 
