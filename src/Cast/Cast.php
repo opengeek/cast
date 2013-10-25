@@ -23,6 +23,9 @@ use Cast\Serialize\AbstractSerializer;
  */
 class Cast
 {
+    const VERSION = '@version@';
+    const RELEASE_DATE = '@versionDate@';
+
     const GIT_PATH = 'cast.git_path';
     const SERIALIZER_MODE = 'cast.serializer_mode';
     const SERIALIZER_CLASS = 'cast.serializer_class';

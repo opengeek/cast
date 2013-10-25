@@ -34,13 +34,13 @@ class Compiler
             unlink($into);
         }
 
-        $git = new Git(__DIR__ . '/../../../');
+        $git = new Git(__DIR__ . '/../../');
 
         /* get version and version date */
         $versionData = $git->exec('log --pretty="%H" -n1 HEAD');
         $this->version = trim($versionData[1]);
 
-        $versionDateData = $git->exec('log -n1 --pretty=%ci HEAD');
+        $versionDateData = $git->exec('log --pretty=%ci -n1 HEAD');
         $this->versionDate = new \DateTime(trim($versionDateData[1]));
         $this->versionDate->setTimezone(new \DateTimeZone('UTC'));
         $this->versionDate = $this->versionDate->format('Y-m-d H:i:s');
@@ -49,6 +49,8 @@ class Compiler
         if ($tagData[0] == '0') {
             $this->version = trim($tagData[1]);
         }
+
+        echo "building {$into} version {$this->version} ({$this->versionDate})" . PHP_EOL;
 
         /* start building the Phar */
         $phar = new \Phar($into, 0, 'cast.phar');
@@ -109,8 +111,8 @@ class Compiler
             $content = "\n".$content."\n";
         }
 
-        $content = str_replace('@package_version@', $this->version, $content);
-        $content = str_replace('@release_date@', $this->versionDate, $content);
+        $content = str_replace('@version@', $this->version, $content);
+        $content = str_replace('@versionDate@', $this->versionDate, $content);
 
         $phar->addFromString($path, $content);
     }
