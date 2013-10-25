@@ -125,7 +125,7 @@ class CLIController implements ControllerInterface
             } elseif (strpos($arg, '-') === 0) {
                 $this->addSwitch($arg);
             } else {
-                $this->arguments[] = escapeshellarg($arg);
+                $this->arguments[] = is_numeric($arg) ? $arg : escapeshellarg($arg);
             }
             $arg = next($args);
         }
@@ -137,9 +137,13 @@ class CLIController implements ControllerInterface
         if (strpos($option, '=') > 0) {
             $exploded = explode('=', $option, 2);
             if (in_array($exploded[1], array('0', '1', 'true', 'false'))) {
-                $this->options[$exploded[0]] = in_array($exploded[1], array('0', 'false')) ? '0' : '1';
+                $this->options[$exploded[0]] = in_array($exploded[1], array('0', 'false'))
+                    ? '0'
+                    : '1';
             } else {
-                $this->options[$exploded[0]] = escapeshellarg($exploded[1]);
+                $this->options[$exploded[0]] = is_numeric($exploded[1])
+                    ? $exploded[1]
+                    : escapeshellarg($exploded[1]);
             }
         } else {
             $this->options[$option] = true;
@@ -150,7 +154,9 @@ class CLIController implements ControllerInterface
     {
         $switch = substr($switch, 1);
         if (strlen($switch) > 1) {
-            $this->options[substr($switch, 0, 1)] = escapeshellarg(substr($switch, 1));
+            $this->options[substr($switch, 0, 1)] = is_numeric(substr($switch, 1))
+                ? substr($switch, 1)
+                : escapeshellarg(substr($switch, 1));
         } else {
             $this->options[$switch] = true;
         }
