@@ -50,7 +50,7 @@ abstract class GitCommand
     /**
      * Get an option value from an array of parsed options.
      *
-     * @param string $key The option key to.
+     * @param string $key The option key to lookup a value for.
      * @param array $opts An array of options to lookup the key in.
      * @param bool $default The default value to return if the key is not found.
      *

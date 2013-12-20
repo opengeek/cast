@@ -107,7 +107,7 @@ class Git
      * @param string $command The complete command to execute.
      * @param null|array $options An optional config array.
      *
-     * @throws \RuntimeException If the process could not be opened.
+     * @throws GitException If an error occurs executing the command.
      * @return array An array containing the process result, stdout and stderr.
      */
     public function exec($command, $options = null)
