@@ -26,11 +26,11 @@ class Cast
     const VERSION = '@version@';
     const RELEASE_DATE = '@versionDate@';
 
-    const GIT_PATH = 'cast.git_path';
-    const SERIALIZER_MODE = 'cast.serializer_mode';
-    const SERIALIZER_CLASS = 'cast.serializer_class';
-    const SERIALIZED_MODEL_PATH = 'cast.serialized_model_path';
-    const SERIALIZED_MODEL_EXCLUDES = 'cast.serialized_model_excludes';
+    const GIT_PATH = 'cast.gitPath';
+    const SERIALIZER_MODE = 'cast.serializerMode';
+    const SERIALIZER_CLASS = 'cast.serializerClass';
+    const SERIALIZED_MODEL_PATH = 'cast.serializedModelPath';
+    const SERIALIZED_MODEL_EXCLUDES = 'cast.serializedModelExcludes';
 
     const SERIALIZER_MODE_IMPLICIT = 0;
     const SERIALIZER_MODE_EXPLICIT = 1;

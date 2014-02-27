@@ -51,11 +51,11 @@ __IMPORTANT: Cast does not currently support any git commands that require user 
 
 There are a few configuration options you can set in Cast. These can be passed to the \Cast\Cast constructor or they can be set in your git config globally or per-repository.
 
- * `cast.git_path` - If git is not available in your path or you want to use a specific git binary, set this to the full path. The default value is `git`.
- * `cast.serializer_mode` - Set this to `0` (explicit) to only serialize/deserialize from the database if an argument is passed indicating to do so. The default is `1` (implicit).
- * `cast.serializer_class` - Indicates the format into which the database records are serialized. The default is `\Cast\Serialize\PHPSerializer`.
- * `cast.serialized_model_path` - Specifies the relative path from the repository root where the serialized database records are stored. The default is `.model/`.
- * `cast.serialized_model_excludes` - Specifies `xPDOObject` classes to exclude from serialization. If specified, the values are merged with the `defaultModelExcludes`.
+ * `cast.gitPath` - The base path of the git repository; uses MODX_BASE_PATH if not set.
+ * `cast.serializerMode` - Set this to `0` (explicit) to only serialize/deserialize from the database if an argument is passed indicating to do so. The default is `1` (implicit).
+ * `cast.serializerClass` - Indicates the format into which the database records are serialized. The default is `\Cast\Serialize\PHPSerializer`.
+ * `cast.serializedModelPath` - Specifies the relative path from the repository root where the serialized database records are stored. The default is `.model/`.
+ * `cast.serializedModelExcludes` - Specifies `xPDOObject` classes to exclude from serialization. If specified, the values are merged with the `defaultModelExcludes`.
 
 __NOTE: The following xPDOObject classes are known as the `defaultModelExcludes` and are *always* excluded from serialization:__
 
