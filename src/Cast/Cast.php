@@ -54,12 +54,11 @@ class Cast
      */
     public function __construct(&$modx = null, array $options = array())
     {
-        $gitPath = null;
         $this->options = $options;
         if ($modx instanceof \modX) {
             $this->modx =& $modx;
-            $gitPath = $this->getOption(self::GIT_PATH, null, $this->modx->getOption('base_path', null, MODX_BASE_PATH));
         }
+        $gitPath = $this->getOption(self::GIT_PATH, null, getcwd());
         $this->git = new Git($gitPath, $options);
     }
 
