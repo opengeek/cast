@@ -106,6 +106,6 @@ You can fine-tune how Cast serializes and unserializes different model classes b
 
 ## COPYRIGHT AND LICENSE
 
-Copyright (C) 2013 by Jason Coward <jason@opengeek.com>
+Copyright (C) 2013-2014 by Jason Coward <jason@opengeek.com>
 
 For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
